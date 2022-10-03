@@ -11,12 +11,16 @@ export interface AuthRepository {
   signToken(user: User): string
   signRefreshToken(): string
   verifyToken(token: string): object | undefined
+  verifyRefreshToken(refreshToken: string): object | undefined
   createRefreshToken(
     refreshToken: RefreshToken<User>,
     userId: string
   ): Promise<RefreshToken<User>> | RefreshToken<User>
   getRefreshTokenByUserId(
     userId: string
+  ): Promise<RefreshToken<User>> | RefreshToken<User>
+  getRefreshTokenByToken(
+    refreshToken: string
   ): Promise<RefreshToken<User>> | RefreshToken<User>
   updateRefreshToken(
     refreshToken: RefreshToken<User> | RefreshToken<User>,

@@ -30,16 +30,16 @@ export class AuthRepositoryImpl implements AuthRepository {
   }
 
   signToken(user: User): string {
-    return jwt.sign({ ...user }, "secret", { expiresIn: 300 })
+    const { email, name, _id } = user
+    const payload = { email, name, _id }
+    return jwt.sign(payload, "secret", { expiresIn: 300 })
   }
 
   signRefreshToken(): string {
-    return jwt.sign({ }, "secret2", { expiresIn: '4d' })
+    return jwt.sign({}, "secret2", { expiresIn: "4d" })
   }
 
   verifyToken(bearerToken: string): any {
-    if (!bearerToken)
-      throw new UnathorizedError("Bearer token is not provided or is invalid")
     const rawToken = bearerToken.split(" ")
     const token = rawToken[1]
     let tokenDecoded: any
@@ -48,7 +48,21 @@ export class AuthRepositoryImpl implements AuthRepository {
         throw new UnathorizedError("Bearer token is not provided or is invalid")
       else tokenDecoded = decoded
     })
-    return tokenDecoded._doc
+    return tokenDecoded
+  }
+
+  verifyRefreshToken(refreshToken: string) {
+    let tokenDecoded: any
+    jwt.verify(refreshToken, "secret2", (error, decoded) => {
+      if (!decoded)
+        throw new UnathorizedError("refreshToken is not provided or is invalid")
+      else tokenDecoded = decoded
+    })
+    return tokenDecoded
+  }
+
+  async getRefreshTokenByToken(refreshToken: string) {
+    return await this.dataSource.getByrefreshToken(refreshToken)
   }
 
   async createRefreshToken(

@@ -1,4 +1,4 @@
-
+/*
 class TelegramClient {
   constructor() {
     this.browser = null
@@ -45,3 +45,5 @@ class TelegramClient {
     await this.browser.close()
   }
 }
+
+*/

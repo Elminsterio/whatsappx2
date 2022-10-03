@@ -22,7 +22,6 @@ export class LoginUseCase implements LoginUseCaseI {
   public async invoke(email: User["email"], password: User["password"]) {
     const user: User = await this.usersRepository.getByEmail(email)
     if (!user) throw new ErrorPwdOrUserNotFound("Password or user is incorrect")
-
     const correctPassword = await this.authRepository.compareHashes(
       password,
       user.password

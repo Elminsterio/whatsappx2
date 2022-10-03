@@ -1,7 +1,7 @@
 import { Schema, model, Model } from "mongoose"
 import { RefreshToken } from "../../../../Domain/Entities/RefreshToken"
 import { User } from "../../../../Domain/Entities/User"
-import { RefreshTokenModelI } from "../../../Interfaces/DataSources/Mongodb/RefreshTokenInterface"
+import { RefreshTokenModelI } from "../../../Interfaces/DataSources/Mongodb/RefreshTokenModelInterface"
 
 export class RefreshTokenModel implements RefreshTokenModelI {
   private refreshTokenSchema: Schema
@@ -20,6 +20,6 @@ export class RefreshTokenModel implements RefreshTokenModelI {
       },
     })
 
-    this.model = model<RefreshToken<User>>("User", this.refreshTokenSchema)
+    this.model = model<RefreshToken<User>>("RefreshToken", this.refreshTokenSchema)
   }
 }

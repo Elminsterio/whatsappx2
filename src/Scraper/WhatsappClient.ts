@@ -1,11 +1,11 @@
-const Client = require("./Client")
+import { Client } from "./Client"
 
-module.exports = class WhatsAppClient extends Client {
-  constructor(url, options) {
+export class WhatsAppClient extends Client {
+  constructor(url: string, options: object) {
     super(url, options)
   }
 
-  async writeMsg(target, message) {
+  async writeMsg(target: string, message: string) {
     const selectorSearch =
       "#side > div.uwk68 > div > div > div._16C8p > div > div._13NKt.copyable-text.selectable-text"
     const searchEl = await this.page.waitForSelector(selectorSearch, {
@@ -28,13 +28,13 @@ module.exports = class WhatsAppClient extends Client {
     await this.page.waitForNetworkIdle({ idleTime: 2000 })
   }
 
-  async getContacts(phone = "") {
+  async getContacts(phone: string = "") {
     let contactsArr = await this.page.evaluate(async () => {
       return await readAllKeyValuePairs("model-storage", "contact")
     })
 
     if (phone) {
-      contactsArr = contactsArr.filter((contact) => {
+      contactsArr = contactsArr.filter((contact: any) => {
         const { id } = contact
         return id.includes(phone)
       })
@@ -50,11 +50,11 @@ module.exports = class WhatsAppClient extends Client {
     })
 
     let groupsArr = chatsArr.filter(
-      (chat) => chat.disappearingModeInitiator !== "chat"
+      (chat: any) => chat.disappearingModeInitiator !== "chat"
     )
 
     if (name) {
-      groupsArr = groupsArr.filter((group) => {
+      groupsArr = groupsArr.filter((group: any) => {
         const { name } = group
         return name.toLowerCase().includes(name.toLowerCase())
       })
@@ -62,4 +62,7 @@ module.exports = class WhatsAppClient extends Client {
     console.table(groupsArr)
     return groupsArr
   }
+}
+function readAllKeyValuePairs(arg0: string, arg1: string) {
+  throw new Error("Function not implemented.")
 }

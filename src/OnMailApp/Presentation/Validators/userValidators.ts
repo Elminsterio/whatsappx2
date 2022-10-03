@@ -10,11 +10,7 @@ export const createUserValidator = [
     .trim()
     .escape(),
   check("age", "Enter a number").optional().isNumeric().escape(),
-  check("DNI", "Please check the DNI or NIE introduced")
-    .optional()
-    .trim()
-    .escape(),
-  check("name", "Enter a pseudonym").optional().trim().escape(),
+  check("name", "Enter a name").trim().escape(),
   check(
     "verified",
     "You cannot modify this attribute, please contact with an admin"

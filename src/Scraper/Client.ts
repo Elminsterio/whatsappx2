@@ -1,10 +1,17 @@
-const puppeteer = require("puppeteer")
-const qrConverter = require("qr-image")
-const path = require("path")
-const { CLIENT_STATES } = require("./constants")
+import puppeteer from "puppeteer"
+import qrConverter from "qr-image"
+import path from "path"
+import { CLIENT_STATES } from "./constants"
 
-module.exports = class Client {
-  constructor(url, options) {
+export class Client {
+  options: object
+  url: string
+  browser: any
+  page: any
+  isAuth: boolean
+  state: string
+
+  constructor(url: string, options: object) {
     this.options = options
     this.url = url
     this.browser = null
@@ -14,11 +21,11 @@ module.exports = class Client {
   }
 
   async chargeEsentialFunctions() {
-    let scriptPath = path.join(__dirname, "scripts", "scripts.js")
+    let scriptPath = path.join(__dirname, "scripts", "scripts.ts")
     await this.page.addScriptTag({ path: require.resolve(scriptPath) })
   }
 
-  async initSesionOnCluster(page, url) {
+  async initSesionOnCluster(page: puppeteer.Page, url: string) {
     this.page = page
     this.url = url
     await this.page.goto(this.url, {
@@ -37,8 +44,8 @@ module.exports = class Client {
   }
 
   async checkAuthSession(
-    stringCSSSelectorAuthenticated,
-    stringCSSSelectorNotAuthenticated
+    stringCSSSelectorAuthenticated: string,
+    stringCSSSelectorNotAuthenticated: string
   ) {
     const isAuth = await Promise.race([
       this.page
@@ -56,12 +63,12 @@ module.exports = class Client {
     return this.isAuth
   }
 
-  async authenticateSession(stringCSSSelectorOfQrElement) {
-    let interval
-    await new Promise((resolve) => {
+  async authenticateSession(stringCSSSelectorOfQrElement: string) {
+    let interval: string | number | NodeJS.Timer | undefined;
+    await new Promise<void>((resolve) => {
       interval = setInterval(async () => {
-        const qr = await this.page.evaluate((selector) => {
-          const qrElement = document.querySelector(selector)
+        const qr = await this.page.evaluate((selector: string) => {
+          const qrElement: any = document.querySelector(selector)
           if (!qrElement) return
           return qrElement.dataset.ref
         }, stringCSSSelectorOfQrElement)

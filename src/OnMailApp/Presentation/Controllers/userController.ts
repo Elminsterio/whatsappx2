@@ -69,7 +69,13 @@ export class UserController implements UserControllerI<Request, Response> {
     if (!errors.isEmpty()) throw new MultipleValidationDataError(messageError)
 
     const { creationDate, name, email, password } = req.body
-    const user: User = { creationDate, name, email, password }
+
+    const user: User = {
+      creationDate,
+      name,
+      email,
+      password
+    }
 
     return await this.createUserUseCase.invoke(user)
   }

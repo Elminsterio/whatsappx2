@@ -28,7 +28,7 @@ export class Server {
         console.log('  Press CTRL-C to stop\n');
         resolve();
       });
-      mongoose.connect('mongodb://localhost:27017/OneTest');
+      mongoose.connect('mongodb://localhost:27017/OnMailTest');
     });
   }
 

@@ -1,4 +1,7 @@
-function writeTask(userBrowserConfPath) {
+import { URLS } from "./constants"
+import { WhatsAppClient } from "./WhatsappClient"
+
+export function writeTask(userBrowserConfPath: string) {
   const whatsapp = new WhatsAppClient(URLS.whatsApp, {
     headless: true,
     userDataDir: userBrowserConfPath,
@@ -14,6 +17,3 @@ function writeTask(userBrowserConfPath) {
   }
 }
 
-module.exports = {
-  writeTask,
-}

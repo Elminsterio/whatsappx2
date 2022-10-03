@@ -7,6 +7,7 @@ export default interface RefreshTokenDataSource {
     userId: string
   ): Promise<RefreshToken<User>> | RefreshToken<User>
   getByuserId(userId: string): Promise<RefreshToken<User>> | RefreshToken<User>
+  getByrefreshToken(refreshToken: string): Promise<RefreshToken<User>> | RefreshToken<User>
   updateToken(
     refreshToken: RefreshToken<User>,
     userId: string

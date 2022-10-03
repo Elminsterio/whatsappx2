@@ -7,12 +7,9 @@ import { UserRoutesI } from "../../Interfaces/Routes/User/userRoutesInterface"
 import {
   createUserValidator,
   updateUserValidator,
-} from "../../Validators/userValidator"
+} from "../../Validators/userValidators"
 
 export class UserRoutes implements UserRoutesI {
-  static userRepo = new UserRepositoryImpl(
-    new UserMongoDataSourceImpl(new UserModel())
-  )
   private userController: UserControllerI<Request, Response>
 
   constructor(_userController: UserControllerI<Request, Response>) {
@@ -27,24 +24,28 @@ export class UserRoutes implements UserRoutesI {
       next: NextFunction
     ) => this.getUsers(req, res, next)
     router.get("/", installGetUsersRoute)
+    
     const installCreateUsersRoute = (
       req: Request,
       res: Response,
       next: NextFunction
     ) => this.createUser(req, res, next)
     router.post("/", createUserValidator, installCreateUsersRoute)
+
     const installUpdateUsersRoute = (
       req: Request,
       res: Response,
       next: NextFunction
     ) => this.updateUser(req, res, next)
     router.patch("/:id", updateUserValidator, installUpdateUsersRoute)
+
     const installDeleteUsersRoute = (
       req: Request,
       res: Response,
       next: NextFunction
     ) => this.deleteUser(req, res, next)
     router.delete("/:id", installDeleteUsersRoute)
+
     const installGetUsersByIdRoute = (
       req: Request,
       res: Response,

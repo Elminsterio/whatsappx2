@@ -1,6 +1,7 @@
+import { ErrorBDEntityNotFound } from "../../../Domain/Entities/Errors"
 import { RefreshToken } from "../../../Domain/Entities/RefreshToken"
 import { User } from "../../../Domain/Entities/User"
-import { RefreshTokenModelI } from "../../Interfaces/DataSources/Mongodb/RefreshTokenInterface"
+import { RefreshTokenModelI } from "../../Interfaces/DataSources/Mongodb/RefreshTokenModelInterface"
 import RefreshTokenDataSource from "../../Interfaces/DataSources/RefreshTokenDataSource"
 
 export class RefreshTokenMongoDataSource implements RefreshTokenDataSource {
@@ -22,7 +23,17 @@ export class RefreshTokenMongoDataSource implements RefreshTokenDataSource {
   }
 
   async getByuserId(userId: string): Promise<RefreshToken<User>> {
-    return await this.refreshTokenModel.findOne({ user: userId })
+    const refreshTokenStored = await this.refreshTokenModel.findOne({
+      user: userId,
+    })
+    return refreshTokenStored
+  }
+
+  async getByrefreshToken(refreshToken: string): Promise<RefreshToken<User>> {
+    const refreshTokenStored = await this.refreshTokenModel.findOne({
+      token: refreshToken,
+    })
+    return refreshTokenStored
   }
 
   async updateToken(
