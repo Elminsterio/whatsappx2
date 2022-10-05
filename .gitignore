@@ -141,6 +141,6 @@ dist
 .svelte-kit
 
 # Others
-uploads
+src/assets/*
 
 # End of https://www.toptal.com/developers/gitignore/api/node

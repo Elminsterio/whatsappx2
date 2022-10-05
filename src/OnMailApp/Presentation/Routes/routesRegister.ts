@@ -25,7 +25,9 @@ import { UserRepositoryImpl } from "../../Data/Repositories/UserRepositoryImpl"
 import { WriteMessageUseCase } from "../../Domain/UseCases/Tasks/CreateWriteMessage"
 import { TaskController } from "../Controllers/taskController"
 import { TaskRoutes } from "./Task/taskRoutes"
-import { writeTask } from "../../../Scraper/Tasks"
+import { RegisterSesionUseCase } from "../../Domain/UseCases/Tasks/RegisterSesion"
+import { TaskManager } from "../../../Scraper/TaskManager"
+import { GetUserTasksUseCase } from "../../Domain/UseCases/Tasks/GetUserTasks"
 
 export class RoutesRegister implements RoutesRegisterI {
   app: Express
@@ -52,13 +54,16 @@ export class RoutesRegister implements RoutesRegisterI {
       ),
     }
 
+    const taskManager = new TaskManager()
+
     const repositories = {
       userRepo: new UserRepositoryImpl(dataSources.userMongoDataSource),
       authRepo: new AuthRepositoryImpl(dataSources.refreshTokenDataSource),
       authRoleRepo: new AuthRoleRepositoryImpl(),
       taskRepo: new TaskRepositoryImpl(
         dataSources.userMongoDataSource,
-        dataSources.taskDataSource
+        dataSources.taskDataSource,
+        taskManager
       ),
     }
 
@@ -101,9 +106,19 @@ export class RoutesRegister implements RoutesRegisterI {
       writeMessage: new WriteMessageUseCase(
         repositories.authRepo,
         repositories.authRoleRepo,
-        repositories.taskRepo,
-        writeTask
+        repositories.taskRepo
       ),
+      registerSesion: new RegisterSesionUseCase(
+        repositories.authRepo,
+        repositories.authRoleRepo,
+        repositories.taskRepo,
+        repositories.userRepo
+      ),
+      getTasksUseCase: new GetUserTasksUseCase(
+        repositories.authRepo,
+        repositories.authRoleRepo,
+        repositories.taskRepo
+      )
     }
 
     const userCont: UserController = new UserController(
@@ -120,7 +135,9 @@ export class RoutesRegister implements RoutesRegisterI {
     )
 
     const taskCont: TaskController = new TaskController(
-      taskUseCases.writeMessage
+      taskUseCases.writeMessage,
+      taskUseCases.registerSesion,
+      taskUseCases.getTasksUseCase
     )
 
     const userRoutes: UserRoutes = new UserRoutes(userCont)

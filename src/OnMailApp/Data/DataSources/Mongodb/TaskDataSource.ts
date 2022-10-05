@@ -15,10 +15,7 @@ export default class TaskDataSourceImpl implements TaskDataSource {
   }
 
   async getTasksOfUser(userId: User["_id"]): Promise<Task[]> {
-    const tasksOnDB = await this.taskModel.find({ user: userId })
-    if (!tasksOnDB)
-      throw new ErrorBDEntityNotFound("This user doesn't have any pending task")
-    return tasksOnDB
+    return await this.taskModel.find({ user: userId })
   }
 
   async getTaskById(id: string): Promise<Task> {
@@ -43,6 +40,7 @@ export default class TaskDataSourceImpl implements TaskDataSource {
     return await taskSaved
   }
 
+  // TODO: create correct edit task
   async editTask(taskId: string): Promise<Task> {
     const isTaskOnDB = await this.taskModel.findByIdAndUpdate(
       taskId,
@@ -76,7 +74,7 @@ export default class TaskDataSourceImpl implements TaskDataSource {
         "The id provided doesn't match with any task"
       )
 
-    const [userSaved, ] = await Promise.all([userOnDB.save(), taskOnDB.remove()])
+    await Promise.all([userOnDB.save(), taskOnDB.remove()])
     return 
   }
 }

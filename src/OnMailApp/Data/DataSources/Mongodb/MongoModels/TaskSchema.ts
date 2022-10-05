@@ -1,8 +1,6 @@
-import mongoose, { model, Model, Schema } from "mongoose"
+import { model, Model, Schema } from "mongoose"
 import { Task } from "../../../../Domain/Entities/Task"
 import { TaskModelI } from "../../../Interfaces/DataSources/Mongodb/TaskModelInterface"
-import mongooseFunction from 'mongoose-function'
-mongooseFunction(mongoose)
 
 export class TaskModel implements TaskModelI {
   private TaskSchema: Schema
@@ -12,7 +10,10 @@ export class TaskModel implements TaskModelI {
     this.TaskSchema = new Schema<Task>({
       executionTime: { type: Schema.Types.Mixed, required: true },
       taskType: { type: String, required: true },
-      taskFunction: { type: Function, required: true },
+      action: { type: Schema.Types.Mixed },
+      target: { type: String },
+      sended: { type: Boolean },
+      historic: { type: Boolean, default: false },
       user: { type: String, required: true },
     })
 

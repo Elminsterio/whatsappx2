@@ -23,8 +23,7 @@ export class DeleteUserUseCase implements DeleteUserUseCaseI {
   }
 
   public async invoke(id: User["_id"], token: string) {
-    const tokenDecoded: object | undefined =
-      this.authRepository.verifyToken(token)
+    const tokenDecoded: any = this.authRepository.verifyToken(token)
     this.authRoleRepository.checkIsOwnId(tokenDecoded, id)
     return await this.usersRepository.delete(id)
   }

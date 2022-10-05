@@ -21,7 +21,7 @@ export class Client {
   }
 
   async chargeEsentialFunctions() {
-    let scriptPath = path.join(__dirname, "scripts", "scripts.ts")
+    let scriptPath = path.join(__dirname, "scripts", "scripts.js")
     await this.page.addScriptTag({ path: require.resolve(scriptPath) })
   }
 

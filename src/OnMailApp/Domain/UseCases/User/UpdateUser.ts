@@ -23,8 +23,7 @@ export class UpdateUserUseCase implements UpdateUserUseCaseI {
   }
 
   public async invoke(id: User["_id"], user: User, token: string) {
-    const tokenDecoded: object | undefined =
-      this.authRepository.verifyToken(token)
+    const tokenDecoded: any = this.authRepository.verifyToken(token)
     this.authRoleRepository.checkIsOwnId(tokenDecoded, id)
     return await this.usersRepository.edit(id, user)
   }

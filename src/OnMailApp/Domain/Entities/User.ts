@@ -7,6 +7,7 @@ export interface User {
   email: string
   password: string
   active?: boolean
+  isAuth?: boolean
   browserConfigPath?: string
   tasks?: Task[]
 }

@@ -20,9 +20,7 @@ export class LogoutUseCase implements LogoutUseCaseI {
   }
 
   async invoke(userId: User["_id"], token: string) {
-    const tokenDecoded: object | undefined =
-      this.authRepository.verifyToken(token)
-
+    const tokenDecoded: any = this.authRepository.verifyToken(token)
     this.authRoleRepository.checkIsOwnId(tokenDecoded, userId)
 
     const refreshToken: any = await this.authRepository.getRefreshTokenByUserId(

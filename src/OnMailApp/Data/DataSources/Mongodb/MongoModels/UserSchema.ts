@@ -16,6 +16,7 @@ export class UserModel implements UserModelI {
       active: { type: Boolean, default: true },
       browserConfigPath: { type: String },
       tasks: { type: Array },
+      isAuth: { type: Boolean, default: false }
     })
 
     this.userSchema.methods.toJSON = function () {
@@ -23,7 +24,7 @@ export class UserModel implements UserModelI {
       let userObject = user.toObject()
       delete userObject.password
       delete userObject.browserConfigPath
-      
+
       return userObject
     }
 
