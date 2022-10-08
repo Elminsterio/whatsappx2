@@ -1,24 +1,27 @@
-import schedule from "node-schedule"
+import { TasksI } from "../../../Scraper/Tasks"
 import { TaskManagerI } from "../../../Scraper/TaskManager"
 import { Task } from "../../Domain/Entities/Task"
 import { User } from "../../Domain/Entities/User"
 import TaskRepository from "../../Domain/Repositories/TaskRepository"
-import TaskDataSource from "../Interfaces/DataSources/TaskDataSource"
-import UserDataSource from "../Interfaces/DataSources/UserDataSource"
+import TaskDataSource from "../../../Interfaces/Data/DataSources/TaskDataSource"
+import UserDataSource from "../../../Interfaces/Data/DataSources/UserDataSource"
 
 export class TaskRepositoryImpl implements TaskRepository {
   public userDataSource: UserDataSource
   public taskDataSource: TaskDataSource
-  public taskManager: TaskManagerI
+  public tasksManager: TaskManagerI
+  public tasks: TasksI
 
   constructor(
     _userDatasource: UserDataSource,
     _taskDataSource: TaskDataSource,
-    _taskManager: TaskManagerI
+    _tasks: TasksI,
+    _tasksManager: TaskManagerI
   ) {
     this.userDataSource = _userDatasource
     this.taskDataSource = _taskDataSource
-    this.taskManager = _taskManager
+    this.tasks = _tasks
+    this.tasksManager = _tasksManager
   }
 
   addTaskToManager(task: Task, userDBrowserConfPath: string) {
@@ -26,14 +29,14 @@ export class TaskRepositoryImpl implements TaskRepository {
     let cb: () => Promise<void>
     switch (taskType) {
       case "WriteMessage":
-        cb = this.taskManager.writeTask(
+        cb = this.tasks.writeTask(
           userDBrowserConfPath,
           action as string,
           target as string
         )
         break
       default:
-        cb = this.taskManager.writeTask(
+        cb = this.tasks.writeTask(
           userDBrowserConfPath,
           action as string,
           target as string
@@ -41,46 +44,45 @@ export class TaskRepositoryImpl implements TaskRepository {
         break
     }
     // TODO: añadir filtro para cargar sólo las del día
-    this.taskManager.addTask(cb, executionTime)
+    this.tasksManager.addTask(cb, executionTime)
   }
 
-  executeTask(task: Task, userDBrowserConfPath: string) {
+  async createTask(
+    task: Task,
+    userDBrowserConfPath: string,
+    userId: User["_id"]
+  ) {
     const { executionTime, taskType, action, target } = task
     let cb: () => Promise<void>
     switch (taskType) {
       case "WriteMessage":
-        cb = this.taskManager.writeTask(
+        cb = this.tasks.writeTask(
           userDBrowserConfPath,
           action as string,
           target as string
         )
         break
       default:
-        cb = this.taskManager.writeTask(
+        cb = this.tasks.writeTask(
           userDBrowserConfPath,
           action as string,
           target as string
         )
         break
     }
-    schedule.scheduleJob(task._id as string, executionTime, cb)
+    return await this.taskDataSource.createTask(task, userId, cb)
   }
 
-  async keepSesionTask(userBrowserConfPath: string) {
-    // TODO: entregar el QR en una conexión keepalive
-    return await this.taskManager.keepInitSesionTask(userBrowserConfPath)
+  keepSesionTask(userBrowserConfPath: string, tries: number) {
+    return this.tasks.keepInitSesionTask(userBrowserConfPath, tries)
   }
 
   async getTasksOfUser(userId: User["_id"]): Promise<Task[]> {
     return await this.taskDataSource.getTasksOfUser(userId)
   }
 
-  async getTaskById(id: Task["user"]): Promise<Task> {
+  async getTaskById(id: Task["userId"]): Promise<Task> {
     return await this.taskDataSource.getTaskById(id)
-  }
-
-  async createTask(task: Task, userId: string): Promise<Task> {
-    return await this.taskDataSource.createTask(task, userId)
   }
 
   async editTask(id: string, task: Task): Promise<Task> {
@@ -88,9 +90,10 @@ export class TaskRepositoryImpl implements TaskRepository {
   }
 
   async deleteTask(taskId: string, userId: string): Promise<void> {
-    const jobNames = schedule.scheduledJobs
-    console.log(jobNames)
-    if (jobNames[taskId]) jobNames[taskId].cancel()
     return await this.taskDataSource.deleteTask(taskId, userId)
+  }
+
+  async deleteAllTasks(userId: string): Promise<void> {
+    return await this.taskDataSource.deleteAllTasks(userId)
   }
 }

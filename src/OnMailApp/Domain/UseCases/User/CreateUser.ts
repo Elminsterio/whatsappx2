@@ -1,9 +1,9 @@
-import { User } from "../../Entities/User"
+import { DynamicUser, User } from "../../Entities/User"
 import { UsersRepository } from "../../Repositories/UsersRepository"
 import { AuthRepository } from "../../Repositories/AuthRepository"
 
 export interface CreateUserUseCaseI {
-  invoke: (user: User) => Promise<User>
+  invoke: (user: DynamicUser) => Promise<User>
 }
 
 export class CreateUserUseCase implements CreateUserUseCaseI {
@@ -18,8 +18,8 @@ export class CreateUserUseCase implements CreateUserUseCaseI {
     this.authRepository = _authRepository
   }
 
-  public async invoke(user: User) {
-    user.password = await this.authRepository.hash(user.password)
+  public async invoke(user: DynamicUser) {
+    user.password = await this.authRepository.hash(user.password as string)
     return await this.usersRepository.create(user)
   }
 }

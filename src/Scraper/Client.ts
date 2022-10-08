@@ -64,7 +64,31 @@ export class Client {
   }
 
   async authenticateSession(stringCSSSelectorOfQrElement: string) {
-    let interval: string | number | NodeJS.Timer | undefined;
+    let timer: string | number | NodeJS.Timer | undefined
+    return await new Promise<string | boolean>(async (resolve) => {
+      timer = setTimeout(async () => {
+        const qr = await this.page.evaluate((selector: string) => {
+          const qrElement: any = document.querySelector(selector)
+          if (!qrElement) return
+          return qrElement.dataset.ref
+        }, stringCSSSelectorOfQrElement)
+
+        if (!qr) {
+          clearTimeout(timer)
+          resolve(false)
+          return
+        }
+        resolve(qr)
+        return
+      }, 5000)
+    })
+  }
+
+  async authenticateSessionReturnsImage(
+    stringCSSSelectorOfQrElement: string,
+    tries = 10
+  ) {
+    let interval: string | number | NodeJS.Timer | undefined
     await new Promise<void>((resolve) => {
       interval = setInterval(async () => {
         const qr = await this.page.evaluate((selector: string) => {

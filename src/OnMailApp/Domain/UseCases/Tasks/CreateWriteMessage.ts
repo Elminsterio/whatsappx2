@@ -1,11 +1,11 @@
 import path from "path"
-import { Task } from "../../Entities/Task"
+import { DynamicTask, Task } from "../../Entities/Task"
 import { AuthRepository } from "../../Repositories/AuthRepository"
 import { AuthRoleRepository } from "../../Repositories/AuthRoleRepository"
 import TaskRepository from "../../Repositories/TaskRepository"
 
 export interface WriteMessageUseCaseI {
-  invoke: (task: Task, token: string) => Promise<Task>
+  invoke: (task: DynamicTask, token: string) => Promise<Task>
 }
 
 export class WriteMessageUseCase implements WriteMessageUseCaseI {
@@ -23,16 +23,16 @@ export class WriteMessageUseCase implements WriteMessageUseCaseI {
       (this.taskRepository = _taskRepository)
   }
 
-  public async invoke(task: Task, token: string) {
-    const tokenDecoded: any =
-      this.authRepository.verifyToken(token)
-    this.authRoleRepository.checkIsOwnId(tokenDecoded, task.user)
+  public async invoke(task: DynamicTask, token: string) {
+    const tokenDecoded: any = this.authRepository.verifyToken(token)
+    this.authRoleRepository.checkIsOwnId(tokenDecoded, task.userId)
 
-    const newTaskStored = await this.taskRepository.createTask(task, task.user)
-    this.taskRepository.executeTask(
-      newTaskStored,
-      path.join(process.cwd(), "src", "assets", task.user, "WH")
+    const newTaskStored = await this.taskRepository.createTask(
+      task,
+      path.join(process.cwd(), "src", "assets", task.userId, "WH"),
+      task.userId
     )
+
     return newTaskStored
   }
 }

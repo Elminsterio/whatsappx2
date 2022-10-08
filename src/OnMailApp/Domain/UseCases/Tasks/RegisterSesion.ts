@@ -5,7 +5,7 @@ import TaskRepository from "../../Repositories/TaskRepository"
 import { UsersRepository } from "../../Repositories/UsersRepository"
 
 export interface RegisterSesionUseCaseI {
-  invoke: (userId: string, token: string) => Promise<void>
+  invoke: (userId: string, token: string) => AsyncGenerator<any, void, unknown>
 }
 
 export class RegisterSesionUseCase implements RegisterSesionUseCaseI {
@@ -26,21 +26,20 @@ export class RegisterSesionUseCase implements RegisterSesionUseCaseI {
       (this.userRepository = _userRepository)
   }
 
-  public async invoke(userId: string, token: string) {
+  public async *invoke(userId: string, token: string) {
     const tokenDecoded: any = this.authRepository.verifyToken(token)
     this.authRoleRepository.checkIsOwnId(tokenDecoded, userId)
     const user = await this.userRepository.getById(userId)
-    if (user.isAuth === true) {
-      return
-    } else {
-      // mejorar la lógica para permitir el update de un campo sólo
-      await this.taskRepository.keepSesionTask(
-        path.join(process.cwd(), "src", "assets", userId, "WH")
-      )
-      user.isAuth = true
-      delete user._id
-      this.userRepository.edit(userId, user)
-      return
-    }
+    if (user.isAuth === true) return
+    //TODO: mejorar la lógica del almacenamiento para permitir el update de un campo sólo
+    yield* this.taskRepository.keepSesionTask(
+      path.join(process.cwd(), "src", "assets", userId, "WH"),
+      20
+    )
+
+    user.isAuth = true
+    this.userRepository.edit(userId, {
+      isAuth: user.isAuth,
+    })
   }
 }

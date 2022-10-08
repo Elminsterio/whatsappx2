@@ -3,7 +3,7 @@ import { AuthRepository } from "../../Repositories/AuthRepository"
 import { UsersRepository } from "../../Repositories/UsersRepository"
 
 export interface GetUserByIdUseCaseI {
-  invoke: (id: User["_id"], token: string) => Promise<User>
+  invoke: (id: string, token: string) => Promise<User>
 }
 
 export class GetUserByIdUseCase implements GetUserByIdUseCaseI {
@@ -18,7 +18,7 @@ export class GetUserByIdUseCase implements GetUserByIdUseCaseI {
     this.authRepository = _authRepository
   }
 
-  public async invoke(id: User["_id"], token: string) {
+  public async invoke(id: string, token: string) {
     this.authRepository.verifyToken(token)
     return await this.usersRepository.getById(id)
   }

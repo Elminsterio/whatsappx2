@@ -1,10 +1,10 @@
-import { User } from "../../Entities/User"
+import { User, DynamicUser } from "../../Entities/User"
 import { UsersRepository } from "../../Repositories/UsersRepository"
 import { AuthRepository } from "../../Repositories/AuthRepository"
 import { AuthRoleRepository } from "../../Repositories/AuthRoleRepository"
 
 export interface UpdateUserUseCaseI {
-  invoke: (id: User["_id"], user: User, token: string) => Promise<User>
+  invoke: (id: string, user: DynamicUser, token: string) => Promise<User>
 }
 
 export class UpdateUserUseCase implements UpdateUserUseCaseI {
@@ -22,7 +22,7 @@ export class UpdateUserUseCase implements UpdateUserUseCaseI {
     this.authRoleRepository = _authRoleRepository
   }
 
-  public async invoke(id: User["_id"], user: User, token: string) {
+  public async invoke(id: string, user: DynamicUser, token: string) {
     const tokenDecoded: any = this.authRepository.verifyToken(token)
     this.authRoleRepository.checkIsOwnId(tokenDecoded, id)
     return await this.usersRepository.edit(id, user)

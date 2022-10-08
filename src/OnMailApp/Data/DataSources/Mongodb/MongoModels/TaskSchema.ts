@@ -1,6 +1,6 @@
 import { model, Model, Schema } from "mongoose"
 import { Task } from "../../../../Domain/Entities/Task"
-import { TaskModelI } from "../../../Interfaces/DataSources/Mongodb/TaskModelInterface"
+import { TaskModelI } from "../../../../../Interfaces/Data/DataSources/Mongodb/TaskModelInterface"
 
 export class TaskModel implements TaskModelI {
   private TaskSchema: Schema
@@ -14,7 +14,7 @@ export class TaskModel implements TaskModelI {
       target: { type: String },
       sended: { type: Boolean },
       historic: { type: Boolean, default: false },
-      user: { type: String, required: true },
+      userId: { type: String, required: true },
     })
 
     this.model = model<Task>("Task", this.TaskSchema)

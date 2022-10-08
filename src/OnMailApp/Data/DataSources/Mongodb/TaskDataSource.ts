@@ -1,9 +1,10 @@
+import schedule from "node-schedule"
 import { User } from "../../../Domain/Entities/User"
-import TaskDataSource from "../../Interfaces/DataSources/TaskDataSource"
-import { Task } from "../../../Domain/Entities/Task"
+import TaskDataSource from "../../../../Interfaces/Data/DataSources/TaskDataSource"
+import { DynamicTask, Task } from "../../../Domain/Entities/Task"
 import { ErrorBDEntityNotFound } from "../../../Domain/Entities/Errors"
-import { UserModelI } from "../../Interfaces/DataSources/Mongodb/UserModelInterface"
-import { TaskModelI } from "../../Interfaces/DataSources/Mongodb/TaskModelInterface"
+import { UserModelI } from "../../../../Interfaces/Data/DataSources/Mongodb/UserModelInterface"
+import { TaskModelI } from "../../../../Interfaces/Data/DataSources/Mongodb/TaskModelInterface"
 
 export default class TaskDataSourceImpl implements TaskDataSource {
   public taskModel: any
@@ -24,7 +25,11 @@ export default class TaskDataSourceImpl implements TaskDataSource {
     return tasksOnDB
   }
 
-  async createTask(task: Task, userId: string): Promise<Task> {
+  async createTask(
+    task: DynamicTask,
+    userId: string,
+    cb: Function
+  ): Promise<Task> {
     const userOnDB: any = await this.userModel.findById({ _id: userId })
     if (!userOnDB)
       throw new ErrorBDEntityNotFound(
@@ -36,7 +41,11 @@ export default class TaskDataSourceImpl implements TaskDataSource {
     userOnDB.tasks.push(newTask._id)
 
     const [, taskSaved] = await Promise.all([userOnDB.save(), newTask.save()])
-
+    schedule.scheduleJob(
+      userId,
+      taskSaved.executionTime,
+      cb as schedule.JobCallback
+    )
     return await taskSaved
   }
 
@@ -73,8 +82,27 @@ export default class TaskDataSourceImpl implements TaskDataSource {
       throw new ErrorBDEntityNotFound(
         "The id provided doesn't match with any task"
       )
-
+    const jobNames = schedule.scheduledJobs
+    if (jobNames[taskId]) jobNames[taskId].cancel()
     await Promise.all([userOnDB.save(), taskOnDB.remove()])
-    return 
+    return
+  }
+
+  async deleteAllTasks(userId: string) {
+    const userOnDB = await this.userModel.findById(userId)
+    if (!userOnDB)
+      throw new ErrorBDEntityNotFound(
+        "The id provided doesn't match with any user"
+      )
+    const jobNames = schedule.scheduledJobs
+    if (userOnDB.tasks?.length) {
+      for (let i = 0; i < userOnDB.tasks.length; i++) {
+        const taskId = userOnDB.tasks[i].toString()
+        const task = await this.taskModel.findById(taskId)
+        if (jobNames[taskId]) jobNames[taskId].cancel()
+        task.remove()
+      }
+    }
+    return
   }
 }

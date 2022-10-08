@@ -1,6 +1,6 @@
-import { User } from "../../../Domain/Entities/User"
-import UserDataSource from "../../Interfaces/DataSources/UserDataSource"
-import { UserModelI } from "../../Interfaces/DataSources/Mongodb/UserModelInterface"
+import { User, DynamicUser } from "../../../Domain/Entities/User"
+import UserDataSource from "../../../../Interfaces/Data/DataSources/UserDataSource"
+import { UserModelI } from "../../../../Interfaces/Data/DataSources/Mongodb/UserModelInterface"
 import { Types } from "mongoose"
 import {
   ErrorBDEntityFound,
@@ -14,7 +14,7 @@ export default class UserMongoDataSourceImpl implements UserDataSource {
     this.userModel = userModel.model
   }
 
-  async create(user: User): Promise<User> {
+  async create(user: DynamicUser): Promise<User> {
     const isUserOnDB = await this.userModel.find({ email: user.email })
     if (isUserOnDB.length)
       throw new ErrorBDEntityFound("User already exists on database")
@@ -39,7 +39,7 @@ export default class UserMongoDataSourceImpl implements UserDataSource {
     return userOnDB[0]
   }
 
-  async edit(id: Types.ObjectId, user: User): Promise<User> {
+  async edit(id: Types.ObjectId, user: DynamicUser): Promise<User> {
     const userOnDB = await this.userModel.findByIdAndUpdate(id, user, {
       new: true,
       runValidators: true,

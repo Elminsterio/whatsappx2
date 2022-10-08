@@ -1,6 +1,6 @@
 import { Request, Response, Router, NextFunction } from "express"
-import { AuthRoutesI } from "../../Interfaces/Routes/Auth/authRoutesInterface"
-import { AuthControllerI } from "../../Interfaces/Controllers/authControllerInterface"
+import { AuthRoutesI } from "../../../../Interfaces/Presentation/Routes/Auth/authRoutesInterface"
+import { AuthControllerI } from "../../../../Interfaces/Presentation/Controllers/authControllerInterface"
 import { loginValidator, refreshTokenValidator } from "../../Validators/authValidators"
 
 export class AuthRoutes implements AuthRoutesI {
@@ -27,10 +27,10 @@ export class AuthRoutes implements AuthRoutesI {
       res: Response,
       next: NextFunction
     ) => this.refreshToken(req, res, next)
+
     router.post("/login", loginValidator, installLoginRoute)
     router.post("/logout/:id", installLogoutRoute)
     router.post("/refreshToken", refreshTokenValidator, installRefreshTokenRoute)
-
     return router
   }
 

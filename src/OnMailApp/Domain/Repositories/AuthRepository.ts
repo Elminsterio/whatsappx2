@@ -10,8 +10,8 @@ export interface AuthRepository {
   ): Promise<boolean> | boolean
   signToken(user: User): string
   signRefreshToken(): string
-  verifyToken(token: string): object | undefined
-  verifyRefreshToken(refreshToken: string): object | undefined
+  verifyToken(token: string): object
+  verifyRefreshToken(refreshToken: string): object
   createRefreshToken(
     refreshToken: RefreshToken<User>,
     userId: string

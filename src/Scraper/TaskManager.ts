@@ -1,6 +1,4 @@
 import schedule from "node-schedule"
-import { URLS } from "./constants"
-import { WhatsAppClient } from "./WhatsappClient"
 
 export type TaskSchedule = {
   executionTime: string | Date
@@ -11,12 +9,6 @@ export interface TaskManagerI {
   tasks: TaskSchedule[]
   addTask(cb: () => Promise<void>, time: string | Date): void
   executeTasks(): void
-  keepInitSesionTask(userBrowserConfPath: string): Promise<void>
-  writeTask(
-    userBrowserConfPath: string,
-    message: string,
-    contact: string
-  ): () => Promise<void>
 }
 
 export class TaskManager implements TaskManagerI {
@@ -25,32 +17,6 @@ export class TaskManager implements TaskManagerI {
     this.tasks = []
   }
 
-  async keepInitSesionTask(userBrowserConfPath: string) {
-    const whatsapp = new WhatsAppClient(URLS.whatsApp, {
-      headless: false,
-      userDataDir: userBrowserConfPath,
-    })
-    await whatsapp.initSesion()
-    const isAuth = await whatsapp.checkAuthSession(".landing-main", "#side")
-    if (!isAuth) await whatsapp.authenticateSession('[data-testid="qrcode"]')
-    await whatsapp.closeSesion()
-  }
-
-  writeTask(userBrowserConfPath: string, message: string, contact: string) {
-    const whatsapp = new WhatsAppClient(URLS.whatsApp, {
-      headless: false,
-      userDataDir: userBrowserConfPath,
-    })
-
-    return async () => {
-      await whatsapp.initSesion()
-      const isAuth = await whatsapp.checkAuthSession(".landing-main", "#side")
-      if (!isAuth) await whatsapp.authenticateSession('[data-testid="qrcode"]')
-      else await whatsapp.awakeSession()
-      await whatsapp.writeMsg(contact, message)
-      await whatsapp.closeSesion()
-    }
-  }
 
   addTask(cb: () => Promise<void>, time: string | Date) {
     const taskObject: TaskSchedule = { executionTime: time, task: cb }
@@ -65,3 +31,16 @@ export class TaskManager implements TaskManagerI {
     }
   }
 }
+
+/*
+async function init() {
+  const tasker = new TaskManager()
+  const initSesion = tasker.keepInitSesionTask('./hola')
+  for await(let qr of initSesion) {
+    console.log(qr)
+  }
+}
+
+init()
+
+*/

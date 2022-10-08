@@ -1,6 +1,6 @@
 import { Request, Response, Router, NextFunction } from "express"
-import { TaskRoutesI } from "../../Interfaces/Routes/Task/taskRoutesInterface"
-import { TaskControllerI } from "../../Interfaces/Controllers/taskControllerInterface"
+import { TaskRoutesI } from "../../../../Interfaces/Presentation/Routes/Task/taskRoutesInterface"
+import { TaskControllerI } from "../../../../Interfaces/Presentation/Controllers/taskControllerInterface"
 
 export class TaskRoutes implements TaskRoutesI {
   private taskController: TaskControllerI<Request, Response>
@@ -11,26 +11,26 @@ export class TaskRoutes implements TaskRoutesI {
 
   public registerRoutes(): Router {
     const router = Router()
-    const installWriteMessageRoute = (
-      req: Request,
-      res: Response,
-      next: NextFunction
-    ) => this.writeMessage(req, res, next)
-    router.post("/writeMessage", installWriteMessageRoute)
-
-    const installRegisterSesionRoute = (
-      req: Request,
-      res: Response,
-      next: NextFunction
-    ) => this.registerSesion(req, res, next)
-    router.post("/registerSesion", installRegisterSesionRoute)
-
     const installGetTasksRoute = (
       req: Request,
       res: Response,
       next: NextFunction
     ) => this.getUserTasks(req, res, next)
     router.get("/:id", installGetTasksRoute)
+
+    const installWriteMessageRoute = (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) => this.writeMessage(req, res, next)
+    router.post("/WH/writeMessage", installWriteMessageRoute)
+
+    const installRegisterSesionRoute = (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) => this.registerSesion(req, res, next)
+    router.get("/WH/registerSesion/:id", installRegisterSesionRoute)
 
     return router
   }
@@ -47,17 +47,27 @@ export class TaskRoutes implements TaskRoutesI {
       return next(error)
     }
   }
-
+//TODO: Learn to close correctly connection
   async registerSesion(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      await this.taskController.registerSesion(req, res)
-      return res.json({ result: "Sesion has been registered" })
+      const qrs = this.taskController.registerSesion(req, res)
+      await qrs.next()
+
+      res.setHeader("Content-Type", "text/event-stream")
+      res.setHeader("Cache-Control", "no-store")
+      res.flushHeaders()
+      
+      for await (let qr of qrs) {
+        const qrString = JSON.stringify({ result: qr })
+        res.write(`data:${qrString}\n\n`)
+      }
+      res.end()
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 

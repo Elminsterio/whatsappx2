@@ -1,7 +1,7 @@
 import { Schema, model, Model } from "mongoose"
 import { RefreshToken } from "../../../../Domain/Entities/RefreshToken"
 import { User } from "../../../../Domain/Entities/User"
-import { RefreshTokenModelI } from "../../../Interfaces/DataSources/Mongodb/RefreshTokenModelInterface"
+import { RefreshTokenModelI } from "../../../../../Interfaces/Data/DataSources/Mongodb/RefreshTokenModelInterface"
 
 export class RefreshTokenModel implements RefreshTokenModelI {
   private refreshTokenSchema: Schema

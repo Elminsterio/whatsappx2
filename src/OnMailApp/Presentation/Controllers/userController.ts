@@ -1,10 +1,10 @@
 import { GetUsersUseCaseI } from "../../Domain/UseCases/User/GetUsers"
 import { CreateUserUseCaseI } from "../../Domain/UseCases/User/CreateUser"
 import { Request, Response } from "express"
-import { User } from "../../Domain/Entities/User"
-import { UserControllerI } from "../Interfaces/Controllers/userControllerInterface"
+import { DynamicUser } from "../../Domain/Entities/User"
+import { UserControllerI } from "../../../Interfaces/Presentation/Controllers/userControllerInterface"
 import { validationResult } from "express-validator"
-import { MultipleValidationDataError } from "../../Domain/Entities/Errors"
+import { MultipleValidationDataError, UnathorizedError } from "../../Domain/Entities/Errors"
 import { UpdateUserUseCaseI } from "../../Domain/UseCases/User/UpdateUser"
 import { DeleteUserUseCaseI } from "../../Domain/UseCases/User/DeleteUser"
 import { GetUserByIdUseCaseI } from "../../Domain/UseCases/User/GetUserById"
@@ -36,7 +36,8 @@ export class UserController implements UserControllerI<Request, Response> {
 
   async getUserById(req: Request, res: Response) {
     const { id } = req.params
-    const token: any = req.get("Authorization")
+    const token = req.get("Authorization")
+    if(!token) throw new UnathorizedError("Bearer token is not provided or is invalid")
 
     return await this.getUserByIdUseCase.invoke(id, token)
   }
@@ -49,15 +50,17 @@ export class UserController implements UserControllerI<Request, Response> {
 
     const { id } = req.params
     const { name, email, password } = req.body
-    const token: any = req.get("Authorization")
-    const user: User = { name, email, password }
+    const token = req.get("Authorization")
+    if(!token) throw new UnathorizedError("Bearer token is not provided or is invalid")
 
+    const user: DynamicUser = { name, email, password }
     return await this.updateUserUseCase.invoke(id, user, token)
   }
 
   async deleteUser(req: Request, res: Response) {
     const { id } = req.params
-    const token: any = req.get("Authorization")
+    const token = req.get("Authorization")
+    if(!token) throw new UnathorizedError("Bearer token is not provided or is invalid")
 
     return await this.deleteUserUseCase.invoke(id, token)
   }
@@ -68,10 +71,8 @@ export class UserController implements UserControllerI<Request, Response> {
 
     if (!errors.isEmpty()) throw new MultipleValidationDataError(messageError)
 
-    const { creationDate, name, email, password } = req.body
-
-    const user: User = {
-      creationDate,
+    const { name, email, password } = req.body
+    const user: DynamicUser = {
       name,
       email,
       password

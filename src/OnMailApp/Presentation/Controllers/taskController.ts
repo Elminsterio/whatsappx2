@@ -1,9 +1,10 @@
 import { Request, Response } from "express"
-import { Task } from "../../Domain/Entities/Task"
+import { UnathorizedError } from "../../Domain/Entities/Errors"
+import { DynamicTask } from "../../Domain/Entities/Task"
 import { WriteMessageUseCaseI } from "../../Domain/UseCases/Tasks/CreateWriteMessage"
 import { GetUserTasksUseCaseI } from "../../Domain/UseCases/Tasks/GetUserTasks"
 import { RegisterSesionUseCaseI } from "../../Domain/UseCases/Tasks/RegisterSesion"
-import { TaskControllerI } from "../Interfaces/Controllers/taskControllerInterface"
+import { TaskControllerI } from "../../../Interfaces/Presentation/Controllers/taskControllerInterface"
 
 export class TaskController implements TaskControllerI<Request, Response> {
   writeMessageUseCase: WriteMessageUseCaseI
@@ -20,20 +21,22 @@ export class TaskController implements TaskControllerI<Request, Response> {
     this.getUserTasksUseCase = _getUserTasksUseCase
   }
 
-  async registerSesion(req: Request, res: Response) {
-    const { id } = req.body
-    const token: any = req.get("Authorization")
+  registerSesion(req: Request, res: Response) {
+    const { id } = req.params
+    const token = req.get("Authorization")
+    if(!token) throw new UnathorizedError("Bearer token is not provided or is invalid")
 
-    return await this.registerSesionUseCase.invoke(id, token)
+    return this.registerSesionUseCase.invoke(id, token)
   }
 
   async writeMessage(req: Request, res: Response) {
     const { id, message, time, target } = req.body
-    const token: any = req.get("Authorization")
+    const token = req.get("Authorization")
+    if(!token) throw new UnathorizedError("Bearer token is not provided or is invalid")
 
-    const task: Task = {
+    const task: DynamicTask = {
       executionTime: time,
-      user: id,
+      userId: id,
       action: message,
       taskType: "WriteMessage",
       target,
@@ -44,7 +47,8 @@ export class TaskController implements TaskControllerI<Request, Response> {
 
   async getUserTasks(req: Request, res: Response) {
     const { id } = req.params
-    const token: any = req.get("Authorization")
+    const token = req.get("Authorization")
+    if(!token) throw new UnathorizedError("Bearer token is not provided or is invalid")
 
     return await this.getUserTasksUseCase.invoke(id, token)
   }

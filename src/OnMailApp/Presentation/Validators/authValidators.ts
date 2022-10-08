@@ -1,5 +1,4 @@
 import { check } from "express-validator"
-import { isString } from "util"
 
 export const loginValidator = [
   check("email", "Email should be provided").isString().trim().escape(),

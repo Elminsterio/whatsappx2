@@ -1,8 +1,7 @@
-import { ErrorBDEntityNotFound } from "../../../Domain/Entities/Errors"
 import { RefreshToken } from "../../../Domain/Entities/RefreshToken"
 import { User } from "../../../Domain/Entities/User"
-import { RefreshTokenModelI } from "../../Interfaces/DataSources/Mongodb/RefreshTokenModelInterface"
-import RefreshTokenDataSource from "../../Interfaces/DataSources/RefreshTokenDataSource"
+import { RefreshTokenModelI } from "../../../../Interfaces/Data/DataSources/Mongodb/RefreshTokenModelInterface"
+import RefreshTokenDataSource from "../../../../Interfaces/Data/DataSources/RefreshTokenDataSource"
 
 export class RefreshTokenMongoDataSource implements RefreshTokenDataSource {
   public refreshTokenModel: any

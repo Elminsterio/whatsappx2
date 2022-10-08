@@ -1,9 +1,6 @@
 import { Request, Response, Router, NextFunction } from "express"
-import { UserRepositoryImpl } from "../../../Data/Repositories/UserRepositoryImpl"
-import UserMongoDataSourceImpl from "../../../Data/DataSources/Mongodb/UserMongoDataSource"
-import { UserModel } from "../../../Data/DataSources/Mongodb/MongoModels/UserSchema"
-import { UserControllerI } from "../../Interfaces/Controllers/userControllerInterface"
-import { UserRoutesI } from "../../Interfaces/Routes/User/userRoutesInterface"
+import { UserControllerI } from "../../../../Interfaces/Presentation/Controllers/userControllerInterface"
+import { UserRoutesI } from "../../../../Interfaces/Presentation/Routes/User/userRoutesInterface"
 import {
   createUserValidator,
   updateUserValidator,

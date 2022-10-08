@@ -4,7 +4,7 @@ import { AuthRepository } from "../../Domain/Repositories/AuthRepository"
 import { User } from "../../Domain/Entities/User"
 import { UnathorizedError } from "../../Domain/Entities/Errors"
 import { RefreshToken } from "../../Domain/Entities/RefreshToken"
-import RefreshTokenDataSource from "../Interfaces/DataSources/RefreshTokenDataSource"
+import RefreshTokenDataSource from "../../../Interfaces/Data/DataSources/RefreshTokenDataSource"
 
 export class AuthRepositoryImpl implements AuthRepository {
   public dataSource: RefreshTokenDataSource

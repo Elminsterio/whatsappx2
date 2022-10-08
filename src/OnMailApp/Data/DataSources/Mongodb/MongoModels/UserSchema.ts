@@ -1,7 +1,7 @@
 import { Schema, model, Model } from "mongoose"
 import uniqueValidator from "mongoose-unique-validator"
 import { User } from "../../../../Domain/Entities/User"
-import { UserModelI } from "../../../Interfaces/DataSources/Mongodb/UserModelInterface"
+import { UserModelI } from "../../../../../Interfaces/Data/DataSources/Mongodb/UserModelInterface"
 
 export class UserModel implements UserModelI {
   public userSchema: Schema

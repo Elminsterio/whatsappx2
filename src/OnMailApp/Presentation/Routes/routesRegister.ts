@@ -3,7 +3,7 @@ import { Express, Application } from "express"
 import { UserController } from "../Controllers/userController"
 import { GetUsersUseCase } from "../../Domain/UseCases/User/GetUsers"
 import { CreateUserUseCase } from "../../Domain/UseCases/User/CreateUser"
-import { RoutesRegisterI } from "../Interfaces/Routes/routesRegisterInterface"
+import { RoutesRegisterI } from "../../../Interfaces/Presentation/Routes/routesRegisterInterface"
 import { AuthController } from "../Controllers/authController"
 import { LoginUseCase } from "../../Domain/UseCases/Auth/Login"
 import { AuthRoutes } from "./Auth/authRoutes"
@@ -28,6 +28,7 @@ import { TaskRoutes } from "./Task/taskRoutes"
 import { RegisterSesionUseCase } from "../../Domain/UseCases/Tasks/RegisterSesion"
 import { TaskManager } from "../../../Scraper/TaskManager"
 import { GetUserTasksUseCase } from "../../Domain/UseCases/Tasks/GetUserTasks"
+import { Tasks } from "../../../Scraper/Tasks"
 
 export class RoutesRegister implements RoutesRegisterI {
   app: Express
@@ -55,6 +56,7 @@ export class RoutesRegister implements RoutesRegisterI {
     }
 
     const taskManager = new TaskManager()
+    const tasks = new Tasks()
 
     const repositories = {
       userRepo: new UserRepositoryImpl(dataSources.userMongoDataSource),
@@ -63,6 +65,7 @@ export class RoutesRegister implements RoutesRegisterI {
       taskRepo: new TaskRepositoryImpl(
         dataSources.userMongoDataSource,
         dataSources.taskDataSource,
+        tasks,
         taskManager
       ),
     }
@@ -80,6 +83,7 @@ export class RoutesRegister implements RoutesRegisterI {
       ),
       deleteUser: new DeleteUserUseCase(
         repositories.userRepo,
+        repositories.taskRepo,
         repositories.authRepo,
         repositories.authRoleRepo
       ),
@@ -118,7 +122,7 @@ export class RoutesRegister implements RoutesRegisterI {
         repositories.authRepo,
         repositories.authRoleRepo,
         repositories.taskRepo
-      )
+      ),
     }
 
     const userCont: UserController = new UserController(

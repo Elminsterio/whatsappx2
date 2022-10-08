@@ -1,6 +1,6 @@
-import { User } from "../../Domain/Entities/User";
+import { User, DynamicUser } from "../../Domain/Entities/User";
 import { UsersRepository } from "../../Domain/Repositories/UsersRepository";
-import UserDataSource from "../Interfaces/DataSources/UserDataSource";
+import UserDataSource from "../../../Interfaces/Data/DataSources/UserDataSource";
 import { Types } from "mongoose";
 
 export class UserRepositoryImpl implements UsersRepository {
@@ -22,7 +22,7 @@ export class UserRepositoryImpl implements UsersRepository {
     return await this.dataSource.getByEmail(email);
   }
 
-  async create(user: User): Promise<User> {
+  async create(user: DynamicUser): Promise<User> {
     return await this.dataSource.create(user);
   }
 
