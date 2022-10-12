@@ -25,7 +25,7 @@ export class TaskRepositoryImpl implements TaskRepository {
   }
 
   addTaskToManager(task: Task, userDBrowserConfPath: string) {
-    const { executionTime, taskType, action, target } = task
+    const { executionTime, taskType, action, target, userId } = task
     let cb: () => Promise<void>
     switch (taskType) {
       case "WriteMessage":
@@ -44,7 +44,7 @@ export class TaskRepositoryImpl implements TaskRepository {
         break
     }
     // TODO: añadir filtro para cargar sólo las del día
-    this.tasksManager.addTask(cb, executionTime)
+    this.tasksManager.addTask(cb, executionTime, userId)
   }
 
   async createTask(
@@ -83,6 +83,10 @@ export class TaskRepositoryImpl implements TaskRepository {
 
   async getTaskById(id: Task["userId"]): Promise<Task> {
     return await this.taskDataSource.getTaskById(id)
+  }
+
+  async getAllTasks(): Promise<Task[]> {
+    return await this.taskDataSource.getAllTasks()
   }
 
   async editTask(id: string, task: Task): Promise<Task> {

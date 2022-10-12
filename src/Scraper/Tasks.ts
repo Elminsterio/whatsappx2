@@ -14,7 +14,7 @@ export interface TasksI {
 }
 
 export class Tasks implements TasksI {
-  
+  //TODO: retocar la función generadora tanto de el caso de uso como aquí
   async *keepInitSesionTask(userBrowserConfPath: string, tries = 10) {
     const whatsapp = new WhatsAppClient(URLS.whatsApp, {
       headless: false,
@@ -57,7 +57,7 @@ export class Tasks implements TasksI {
       headless: false,
       userDataDir: userBrowserConfPath,
     })
-
+    //TODO: retocar el cliente de whatsapp para que envíe mensaje correctamente
     return async () => {
       try {
         await whatsapp.initSesion()

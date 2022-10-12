@@ -9,6 +9,7 @@ export default interface TaskRepository {
   ): AsyncGenerator<any, any, unknown>
   getTasksOfUser(userId: User["_id"]): Promise<Task[]> | Task[]
   getTaskById(id: Task["userId"]): Promise<Task> | Task
+  getAllTasks(): Promise<Task[]> | Task[]
   createTask(
     task: DynamicTask,
     userDBrowserConfPath: string,

@@ -26,7 +26,7 @@ export class WriteMessageUseCase implements WriteMessageUseCaseI {
   public async invoke(task: DynamicTask, token: string) {
     const tokenDecoded: any = this.authRepository.verifyToken(token)
     this.authRoleRepository.checkIsOwnId(tokenDecoded, task.userId)
-
+    this.authRoleRepository.checkIsWHAuthenticated(tokenDecoded)
     const newTaskStored = await this.taskRepository.createTask(
       task,
       path.join(process.cwd(), "src", "assets", task.userId, "WH"),

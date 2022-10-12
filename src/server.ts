@@ -1,3 +1,5 @@
+import { repositories, taskManager, tasks } from "./OnMailApp/instances"
+import { StartTasksJob } from "./OnMailApp/Jobs/StartTasksJob"
 import { json, urlencoded } from "body-parser"
 import cors from "cors"
 import mongoose from "mongoose"
@@ -14,9 +16,11 @@ export class Server {
   constructor(port: string) {
     this.port = port
     this.express = express()
-    this.express.use(cors({
-      origin: '*'
-    }))
+    this.express.use(
+      cors({
+        origin: "*",
+      })
+    )
     this.express.use(json())
     this.express.use(urlencoded({ extended: true }))
     new RoutesRegister(this.express).registerAllRoutes()
@@ -36,6 +40,17 @@ export class Server {
       })
       mongoose.connect("mongodb://localhost:27017/OnMailTest")
     })
+  }
+
+  async startJobs() {
+    const tasksJob = new StartTasksJob(
+      taskManager,
+      tasks,
+      repositories.taskRepo,
+      repositories.userRepo
+    )
+    await tasksJob.reAddTasks()
+    await tasksJob.init()
   }
 
   getHTTPServer() {

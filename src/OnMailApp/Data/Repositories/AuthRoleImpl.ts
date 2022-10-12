@@ -11,4 +11,14 @@ export class AuthRoleRepositoryImpl implements AuthRoleRepository {
       )
     }
   }
+
+  checkIsWHAuthenticated(tokenDecoded: any): boolean {
+    if (tokenDecoded?.isAuth === true) {
+      return true
+    } else {
+      throw new InsufficientPermisionError(
+        "You are not authenticated on WhatsApp"
+      )
+    }
+  }
 }

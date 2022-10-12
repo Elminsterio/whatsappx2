@@ -25,6 +25,11 @@ export default class TaskDataSourceImpl implements TaskDataSource {
     return tasksOnDB
   }
 
+  async getAllTasks(): Promise<Task[]> {
+    const tasksOnDB = await this.taskModel.find()
+    return tasksOnDB
+  }
+
   async createTask(
     task: DynamicTask,
     userId: string,
