@@ -14,14 +14,17 @@ export class WhatsAppClient extends Client {
     await searchEl.click()
     await searchEl.type(target)
 
-    const selectorChatToTarget = `#pane-side > div:nth-child(1) > div > div > div:nth-child(1) > div > div`
+    const selectorChatToTarget = `[title="${target}"]`
     const chatEl = await this.page.waitForSelector(selectorChatToTarget, {
       timeout: 120000,
     })
     await chatEl.click()
-    const writeEl = await this.page.waitForSelector(`[title="${target}"]`, {
-      timeout: 120000,
-    })
+    const writeEl = await this.page.waitForSelector(
+      `#main > footer > div._2BU3P.tm2tP.copyable-area > div > span:nth-child(2) > div > div._2lMWa > div.p3_M1 > div > div.fd365im1.to2l77zo.bbv8nyr4.mwp4sxku.gfz4du6o.ag5g9lrv`,
+      {
+        timeout: 120000,
+      }
+    )
     await writeEl.click()
     await writeEl.type(message, { delay: 150 })
     await this.page.click('[data-icon="send"]', { delay: 100 })
@@ -63,6 +66,7 @@ export class WhatsAppClient extends Client {
     return groupsArr
   }
 }
+
 function readAllKeyValuePairs(arg0: string, arg1: string) {
   throw new Error("Function not implemented.")
 }

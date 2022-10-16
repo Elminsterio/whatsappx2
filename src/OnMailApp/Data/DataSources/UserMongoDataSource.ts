@@ -1,11 +1,11 @@
-import { User, DynamicUser } from "../../../Domain/Entities/User"
-import UserDataSource from "../../../../Interfaces/Data/DataSources/UserDataSource"
-import { UserModelI } from "../../../../Interfaces/Data/DataSources/Mongodb/UserModelInterface"
+import { User, DynamicUser } from "../../Domain/Entities/User"
+import UserDataSource from "../../../Interfaces/Data/DataSources/UserDataSource"
+import { UserModelI } from "../../../Interfaces/Data/DataSources/Mongodb/UserModelInterface"
 import { Types } from "mongoose"
 import {
   ErrorBDEntityFound,
   ErrorBDEntityNotFound,
-} from "../../../Domain/Entities/Errors"
+} from "../../Domain/Entities/Errors"
 
 export default class UserMongoDataSourceImpl implements UserDataSource {
   public userModel: any

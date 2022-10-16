@@ -37,6 +37,9 @@ export class Client {
   async initSesion() {
     this.browser = await puppeteer.launch(this.options)
     this.page = await this.browser.newPage()
+    await this.page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
+    )
     await this.page.goto(this.url, {
       waitUntil: "load",
     })
@@ -47,6 +50,7 @@ export class Client {
     stringCSSSelectorAuthenticated: string,
     stringCSSSelectorNotAuthenticated: string
   ) {
+    await this.page.waitForTimeout(10000)
     const isAuth = await Promise.race([
       this.page
         .waitForSelector(stringCSSSelectorAuthenticated, {

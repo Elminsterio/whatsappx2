@@ -1,84 +1,93 @@
-import { JobCallback } from "node-schedule"
 import path from "path"
-import { TaskManager } from "../../Scraper/TaskManager"
-import { TasksI } from "../../Scraper/Tasks"
+import { SchedulerI } from "../../Interfaces/Data/DataSources/Scheduler/SchedulerInterface"
+import { WHScraperI } from "../../Interfaces/Data/DataSources/Scraper/WHScraperInterface"
+import TaskDataSource from "../../Interfaces/Data/DataSources/TaskDataSource"
+import UserDataSource from "../../Interfaces/Data/DataSources/UserDataSource"
 import { Task } from "../Domain/Entities/Task"
-import TaskRepository from "../Domain/Repositories/TaskRepository"
-import { UsersRepository } from "../Domain/Repositories/UsersRepository"
 
 export class StartTasksJob {
-  public taskManager: TaskManager
-  public tasks: TasksI
-  public taskRepository: TaskRepository
-  public userRepository: UsersRepository
+  public WHscraper: WHScraperI
+  public scheduler: SchedulerI
+  public taskDataSource: TaskDataSource
+  public userDataSource: UserDataSource
 
   constructor(
-    _taskManager: TaskManager,
-    _tasks: TasksI,
-    _taskRepository: TaskRepository,
-    _userRepository: UsersRepository
+    _taskDataSource: TaskDataSource,
+    _userDataSource: UserDataSource,
+    _WHscraper: WHScraperI,
+    _scheduler: SchedulerI
   ) {
-    this.taskManager = _taskManager
-    this.tasks = _tasks
-    this.taskRepository = _taskRepository
-    this.userRepository = _userRepository
+    this.taskDataSource = _taskDataSource
+    this.userDataSource = _userDataSource
+    this.WHscraper = _WHscraper
+    this.scheduler = _scheduler
   }
 
-  async reAddTasks() {
+  async addTasks() {
     try {
-      const allTasks: Task[] = await this.taskRepository.getAllTasks()
-      const actualDate: Date = new Date()
-      const actualYear: number = actualDate.getFullYear()
-      const actualMonth: number = actualDate.getMonth()
-      const actualDay: number = actualDate.getDate()
-      const nextDay: number = actualDate.setDate(actualDay + 1)
-      const noChargingTaskDate = new Date(
-        actualYear,
-        actualMonth,
-        nextDay,
-        0,
-        0,
-        0
-      )
-      for (let i = 0; i < allTasks.length; i++) {
-        const { executionTime, taskType, userId, action, target, _id } =
-          allTasks[i]
-        const idString = _id.toString()
+      const allTasks: Task[] = await this.taskDataSource.getAllTasks()
 
+      for (let i = 0; i < allTasks.length; i++) {
+        const {
+          executionTime,
+          taskType,
+          userId,
+          action,
+          target,
+          stopped,
+          _id,
+        } = allTasks[i]
+        const actualUserTaskOwner: any = await this.userDataSource.getById(
+          userId
+        )
+
+        if (!actualUserTaskOwner.isAuth || !actualUserTaskOwner || stopped)
+          continue
         if (
           executionTime instanceof Date &&
-          executionTime.getMilliseconds() > noChargingTaskDate.getMilliseconds()
+          executionTime.getMilliseconds() > this.scheduler.millisecondsNextDay
         )
           continue
 
-        let cb: JobCallback
+        const onErrorHandler = async (error: any) => {
+          if (error.message === "Not authenticated") {
+            this.userDataSource.edit(userId, { isAuth: false })
+          }
+          this.taskDataSource.editTask(_id, { stopped: true })
+        }
+        const onSuccessHandler = async () => {
+          if (executionTime instanceof Date) {
+            this.taskDataSource.editTask(_id, { historic: true })
+          }
+        }
+
+        let cb: () => void
+        const userPath = path.join(process.cwd(), "src", "assets", userId, "WH")
         switch (taskType) {
           case "WriteMessage":
-            cb = this.tasks.writeTask(
-              path.join(process.cwd(), "src", "assets", userId, "WH"),
+            cb = this.WHscraper.writeTaskOnQueue(
+              userPath,
               action,
-              target
+              target,
+              onErrorHandler,
+              onSuccessHandler
             )
             break
           default:
-            cb = this.tasks.writeTask(
-              path.join(process.cwd(), "src", "assets", userId, "WH"),
+            cb = this.WHscraper.writeTaskOnQueue(
+              userPath,
               action,
-              target
+              target,
+              onErrorHandler,
+              onSuccessHandler
             )
             break
         }
-        this.taskManager.addTask(cb, executionTime, idString)
-      }
-    } catch (error) {
-      throw error
-    }
-  }
 
-  async init() {
-    try {
-      await this.taskManager.executeTasks()
-      console.log('Tasks loaded successfully')
+        const idString = _id.toString()
+        this.scheduler.addScheduledJob(idString, executionTime, cb)
+      }
+      console.log(this.scheduler.getScheduledJobs())
     } catch (error) {
       throw error
     }

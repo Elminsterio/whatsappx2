@@ -34,7 +34,8 @@ export class DeleteUserUseCase implements DeleteUserUseCaseI {
       this.authRepository.verifyToken(token),
       userId
     )
-    await this.taskRepository.deleteAllTasks(userId)
+    this.taskRepository.deleteAllTasks(userId)
+    await this.authRepository.deleteRefreshToken(userId)
     const user = await this.usersRepository.delete(userId)
     const userDir = path.join(process.cwd(), "src", "assets", userId)
     if (fs.existsSync(userDir)) {

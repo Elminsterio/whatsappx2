@@ -2,10 +2,11 @@ import { OnMailApp } from "./OnMailApp"
 
 
 async function init() {
+  let app: any;
   try {
-    const APP = await new OnMailApp().start()
-    await APP.listen()
-    await APP.startJobs()
+    app = await new OnMailApp().start()
+    await app.listen()
+    await app.startJobs()
   } catch (e) {
     console.log(e)
     process.exit(1)

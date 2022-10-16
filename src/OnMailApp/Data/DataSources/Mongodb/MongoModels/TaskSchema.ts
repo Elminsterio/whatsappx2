@@ -15,6 +15,7 @@ export class TaskModel implements TaskModelI {
       sended: { type: Boolean },
       historic: { type: Boolean, default: false },
       userId: { type: String, required: true },
+      stopped: { type: Boolean, default: false },
     })
 
     this.model = model<Task>("Task", this.TaskSchema)

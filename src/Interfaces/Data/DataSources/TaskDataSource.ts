@@ -8,9 +8,10 @@ export default interface TaskDataSource {
   createTask(
     task: DynamicTask,
     userId: string,
-    cb: Function
+    userBrowserConfPath: string
   ): Promise<Task> | Task
-  editTask(taskId: string, task: Task): Promise<Task> | Task
+  editTask(taskId: string, task: DynamicTask): Promise<Task> | Task
   deleteTask(taskId: string, userId: string): Promise<void>
   deleteAllTasks(userId: string): Promise<void>
+  WHInitSesion(userBrowserConfPath: string, tries: number): AsyncGenerator
 }

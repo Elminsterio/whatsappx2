@@ -6,11 +6,20 @@ export interface Task {
   target: string
   sended?: boolean
   historic: boolean
+  stopped: boolean
   userId: string
   _id: string
 }
 
-export type DynamicTask = Pick<
-  Task,
-  "executionTime" | "userId" | "action" | "taskType" | "target"
+export type DynamicTask = Partial<
+  Pick<
+    Task,
+    | "executionTime"
+    | "userId"
+    | "action"
+    | "taskType"
+    | "target"
+    | "stopped"
+    | "historic"
+  >
 >

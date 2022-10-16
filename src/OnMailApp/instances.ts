@@ -3,9 +3,11 @@ import { Tasks } from "../Scraper/Tasks"
 import { RefreshTokenModel } from "./Data/DataSources/Mongodb/MongoModels/RefreshTokenSchema"
 import { TaskModel } from "./Data/DataSources/Mongodb/MongoModels/TaskSchema"
 import { UserModel } from "./Data/DataSources/Mongodb/MongoModels/UserSchema"
-import { RefreshTokenMongoDataSource } from "./Data/DataSources/Mongodb/RefreshTokenMongoDataSource"
-import TaskDataSourceImpl from "./Data/DataSources/Mongodb/TaskDataSource"
-import UserMongoDataSourceImpl from "./Data/DataSources/Mongodb/UserMongoDataSource"
+import { RefreshTokenMongoDataSource } from "./Data/DataSources/RefreshTokenMongoDataSource"
+import { Scheduler } from "./Data/DataSources/Scheduler/Scheduler"
+import { WHScraper } from "./Data/DataSources/Scrapers/WHScraper"
+import TaskDataSourceImpl from "./Data/DataSources/TaskDataSource"
+import UserMongoDataSourceImpl from "./Data/DataSources/UserMongoDataSource"
 import { AuthRepositoryImpl } from "./Data/Repositories/AuthRepositoryImpl"
 import { AuthRoleRepositoryImpl } from "./Data/Repositories/AuthRoleImpl"
 import { TaskRepositoryImpl } from "./Data/Repositories/TaskRepositoryImpl"
@@ -14,6 +16,8 @@ import { LoginUseCase } from "./Domain/UseCases/Auth/Login"
 import { LogoutUseCase } from "./Domain/UseCases/Auth/Logout"
 import { RefreshTokenUseCase } from "./Domain/UseCases/Auth/RefreshToken"
 import { WriteMessageUseCase } from "./Domain/UseCases/Tasks/CreateWriteMessage"
+import { DeleteTaskUseCase } from "./Domain/UseCases/Tasks/DeleteTask"
+import { EditTaskUseCase } from "./Domain/UseCases/Tasks/EditTask"
 import { GetUserTasksUseCase } from "./Domain/UseCases/Tasks/GetUserTasks"
 import { RegisterSesionUseCase } from "./Domain/UseCases/Tasks/RegisterSesion"
 import { CreateUserUseCase } from "./Domain/UseCases/User/CreateUser"
@@ -25,10 +29,15 @@ import { AuthController } from "./Presentation/Controllers/authController"
 import { TaskController } from "./Presentation/Controllers/taskController"
 import { UserController } from "./Presentation/Controllers/userController"
 
+export const taskManager = new TaskManager()
+export const tasks = new Tasks()
+
 export const models = {
   refreshTokenModel: new RefreshTokenModel(),
   taskModel: new TaskModel(),
   userModel: new UserModel(),
+  scheduler: new Scheduler(),
+  WHScrapper: new WHScraper(taskManager, tasks),
 }
 
 export const dataSources = {
@@ -36,11 +45,13 @@ export const dataSources = {
     models.refreshTokenModel
   ),
   userMongoDataSource: new UserMongoDataSourceImpl(models.userModel),
-  taskDataSource: new TaskDataSourceImpl(models.taskModel, models.userModel),
+  taskDataSource: new TaskDataSourceImpl(
+    models.taskModel,
+    models.userModel,
+    models.WHScrapper,
+    models.scheduler
+  ),
 }
-
-export const taskManager = new TaskManager()
-export const tasks = new Tasks()
 
 export const repositories = {
   userRepo: new UserRepositoryImpl(dataSources.userMongoDataSource),
@@ -49,8 +60,7 @@ export const repositories = {
   taskRepo: new TaskRepositoryImpl(
     dataSources.userMongoDataSource,
     dataSources.taskDataSource,
-    tasks,
-    taskManager
+    tasks
   ),
 }
 
@@ -91,7 +101,8 @@ export const taskUseCases = {
   writeMessage: new WriteMessageUseCase(
     repositories.authRepo,
     repositories.authRoleRepo,
-    repositories.taskRepo
+    repositories.taskRepo,
+    repositories.userRepo
   ),
   registerSesion: new RegisterSesionUseCase(
     repositories.authRepo,
@@ -103,6 +114,17 @@ export const taskUseCases = {
     repositories.authRepo,
     repositories.authRoleRepo,
     repositories.taskRepo
+  ),
+  editTaskUseCase: new EditTaskUseCase(
+    repositories.authRepo,
+    repositories.authRoleRepo,
+    repositories.taskRepo
+  ),
+  deleteTaskUseCase: new DeleteTaskUseCase(
+    repositories.authRepo,
+    repositories.authRoleRepo,
+    repositories.taskRepo,
+    repositories.userRepo
   ),
 }
 
@@ -122,5 +144,7 @@ export const authController: AuthController = new AuthController(
 export const taskController: TaskController = new TaskController(
   taskUseCases.writeMessage,
   taskUseCases.registerSesion,
-  taskUseCases.getTasksUseCase
+  taskUseCases.getTasksUseCase,
+  taskUseCases.deleteTaskUseCase,
+  taskUseCases.editTaskUseCase
 )

@@ -1,4 +1,4 @@
-import { repositories, taskManager, tasks } from "./OnMailApp/instances"
+import { dataSources, models } from "./OnMailApp/instances"
 import { StartTasksJob } from "./OnMailApp/Jobs/StartTasksJob"
 import { json, urlencoded } from "body-parser"
 import cors from "cors"
@@ -43,14 +43,15 @@ export class Server {
   }
 
   async startJobs() {
+    console.log("Jobs: ")
     const tasksJob = new StartTasksJob(
-      taskManager,
-      tasks,
-      repositories.taskRepo,
-      repositories.userRepo
+      dataSources.taskDataSource,
+      dataSources.userMongoDataSource,
+      models.WHScrapper,
+      models.scheduler
     )
-    await tasksJob.reAddTasks()
-    await tasksJob.init()
+    await tasksJob.addTasks()
+    console.log("- Tasks loaded successfully")
   }
 
   getHTTPServer() {

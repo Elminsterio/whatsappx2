@@ -2,11 +2,10 @@ import { DynamicTask, Task } from "../Entities/Task"
 import { User } from "../Entities/User"
 
 export default interface TaskRepository {
-  addTaskToManager(task: Task, userDBrowserConfPath: string): void
-  keepSesionTask(
+  WHInitSesion(
     userBrowserConfPath: string,
     tries: number
-  ): AsyncGenerator<any, any, unknown>
+  ): AsyncGenerator
   getTasksOfUser(userId: User["_id"]): Promise<Task[]> | Task[]
   getTaskById(id: Task["userId"]): Promise<Task> | Task
   getAllTasks(): Promise<Task[]> | Task[]

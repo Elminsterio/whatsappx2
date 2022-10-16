@@ -1,7 +1,7 @@
-import { RefreshToken } from "../../../Domain/Entities/RefreshToken"
-import { User } from "../../../Domain/Entities/User"
-import { RefreshTokenModelI } from "../../../../Interfaces/Data/DataSources/Mongodb/RefreshTokenModelInterface"
-import RefreshTokenDataSource from "../../../../Interfaces/Data/DataSources/RefreshTokenDataSource"
+import { RefreshToken } from "../../Domain/Entities/RefreshToken"
+import { User } from "../../Domain/Entities/User"
+import { RefreshTokenModelI } from "../../../Interfaces/Data/DataSources/Mongodb/RefreshTokenModelInterface"
+import RefreshTokenDataSource from "../../../Interfaces/Data/DataSources/RefreshTokenDataSource"
 
 export class RefreshTokenMongoDataSource implements RefreshTokenDataSource {
   public refreshTokenModel: any
@@ -44,5 +44,12 @@ export class RefreshTokenMongoDataSource implements RefreshTokenDataSource {
     })
     refreshTokenStored.token = refreshToken
     return await refreshTokenStored.save()
+  }
+
+  async deleteRefreshToken(userId: string): Promise<void> {
+    const refreshTokenStored = await this.refreshTokenModel.findOne({
+      user: userId,
+    })
+    await refreshTokenStored.delete()
   }
 }

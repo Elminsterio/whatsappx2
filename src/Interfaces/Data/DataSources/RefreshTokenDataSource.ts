@@ -14,4 +14,5 @@ export default interface RefreshTokenDataSource {
     refreshToken: RefreshToken<User>,
     userId: string
   ): Promise<RefreshToken<User>> | RefreshToken<User>
+  deleteRefreshToken(userId: string): Promise<void>
 }

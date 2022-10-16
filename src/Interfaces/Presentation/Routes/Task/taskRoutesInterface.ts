@@ -17,4 +17,14 @@ export interface TaskRoutesI extends BaseRouteI {
     res: Response,
     next: NextFunction
   ) => Promise<Response | void>
+  editTask: (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => Promise<Response | void>
+  deleteTask: (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => Promise<Response | void>
 }

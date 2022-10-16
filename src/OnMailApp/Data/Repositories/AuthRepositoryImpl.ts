@@ -28,10 +28,10 @@ export class AuthRepositoryImpl implements AuthRepository {
   ): Promise<boolean> {
     return await bcryptjs.compare(passwordIn, passwordKept)
   }
-
+  //TODO: cambiar deleteTasks para que no se necesite mandarlo por el token
   signToken(user: User): string {
-    const { email, name, _id } = user
-    const payload = { email, name, _id }
+    const { email, _id } = user
+    const payload = { email, _id }
     return jwt.sign(payload, "secret", { expiresIn: 300 })
   }
 
@@ -81,5 +81,9 @@ export class AuthRepositoryImpl implements AuthRepository {
     userId: string
   ): Promise<RefreshToken<User>> {
     return await this.dataSource.updateToken(refreshToken, userId)
+  }
+
+  async deleteRefreshToken(userId: string): Promise<void> {
+    await this.dataSource.deleteRefreshToken(userId)
   }
 }

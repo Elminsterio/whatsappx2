@@ -26,4 +26,5 @@ export interface AuthRepository {
     refreshToken: RefreshToken<User> | RefreshToken<User>,
     userId: string
   ): Promise<RefreshToken<User>> | RefreshToken<User>
+  deleteRefreshToken(userId: string): Promise<void>
 }

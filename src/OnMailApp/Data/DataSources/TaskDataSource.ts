@@ -1,18 +1,32 @@
-import schedule from "node-schedule"
-import { User } from "../../../Domain/Entities/User"
-import TaskDataSource from "../../../../Interfaces/Data/DataSources/TaskDataSource"
-import { DynamicTask, Task } from "../../../Domain/Entities/Task"
-import { ErrorBDEntityNotFound } from "../../../Domain/Entities/Errors"
-import { UserModelI } from "../../../../Interfaces/Data/DataSources/Mongodb/UserModelInterface"
-import { TaskModelI } from "../../../../Interfaces/Data/DataSources/Mongodb/TaskModelInterface"
+import { User } from "../../Domain/Entities/User"
+import TaskDataSource from "../../../Interfaces/Data/DataSources/TaskDataSource"
+import { DynamicTask, Task } from "../../Domain/Entities/Task"
+import { ErrorBDEntityNotFound } from "../../Domain/Entities/Errors"
+import { UserModelI } from "../../../Interfaces/Data/DataSources/Mongodb/UserModelInterface"
+import { TaskModelI } from "../../../Interfaces/Data/DataSources/Mongodb/TaskModelInterface"
+import { WHScraperI } from "../../../Interfaces/Data/DataSources/Scraper/WHScraperInterface"
+import { SchedulerI } from "../../../Interfaces/Data/DataSources/Scheduler/SchedulerInterface"
 
 export default class TaskDataSourceImpl implements TaskDataSource {
   public taskModel: any
   public userModel: any
+  public WHScraper: WHScraperI
+  public scheduler: SchedulerI
 
-  constructor(_taskModel: TaskModelI, _userModel: UserModelI) {
+  constructor(
+    _taskModel: TaskModelI,
+    _userModel: UserModelI,
+    _WHScraper: WHScraperI,
+    _scheduler: SchedulerI
+  ) {
     this.taskModel = _taskModel.model
     this.userModel = _userModel.model
+    this.WHScraper = _WHScraper
+    this.scheduler = _scheduler
+  }
+
+  async *WHInitSesion(userBrowserConfPath: string, tries: number) {
+    yield* this.WHScraper.startAuthSesion(userBrowserConfPath, tries)
   }
 
   async getTasksOfUser(userId: User["_id"]): Promise<Task[]> {
@@ -33,7 +47,7 @@ export default class TaskDataSourceImpl implements TaskDataSource {
   async createTask(
     task: DynamicTask,
     userId: string,
-    cb: Function
+    userBrowserConfPath: string
   ): Promise<Task> {
     const userOnDB: any = await this.userModel.findById({ _id: userId })
     if (!userOnDB)
@@ -41,30 +55,56 @@ export default class TaskDataSourceImpl implements TaskDataSource {
         "The id provided doesn't match with any user"
       )
     const newTask = new this.taskModel(task)
+    const { action, target, executionTime, _id } = newTask
 
-    if (!userOnDB.tasks) userOnDB.tasks = []
-    userOnDB.tasks.push(newTask._id)
-
+    userOnDB.tasks.push(_id)
     const [, taskSaved] = await Promise.all([userOnDB.save(), newTask.save()])
-    schedule.scheduleJob(
-      userId,
-      taskSaved.executionTime,
-      cb as schedule.JobCallback
+
+    const onErrorHandler = async (error: any) => {
+      if (error.message === "Not authenticated") {
+        userOnDB.isAuth = false
+        await userOnDB.save()
+      }
+      newTask.stopped = true
+      await newTask.save()
+    }
+    const onSuccessHandler = async () => {
+      if (newTask.executionTime instanceof Date) {
+        newTask.historic = true
+        await newTask.save()
+      }
+    }
+    const writeFunctionOnQueue = this.WHScraper.writeTaskOnQueue(
+      userBrowserConfPath,
+      action,
+      target,
+      onErrorHandler,
+      onSuccessHandler
     )
+    const stringId = _id.toString()
+    this.scheduler.addScheduledJob(
+      stringId,
+      executionTime,
+      writeFunctionOnQueue
+    )
+
     return await taskSaved
   }
 
-  // TODO: create correct edit task
-  async editTask(taskId: string): Promise<Task> {
-    const isTaskOnDB = await this.taskModel.findByIdAndUpdate(
-      taskId,
-      { taskType: "WriteMessage" },
-      { new: true, runValidators: true }
-    )
+  async editTask(taskId: string, task: DynamicTask): Promise<Task> {
+    const isTaskOnDB = await this.taskModel.findByIdAndUpdate(taskId, task, {
+      new: true,
+      runValidators: true,
+    })
     if (!isTaskOnDB)
       throw new ErrorBDEntityNotFound(
         "The id provided doesn't match with any task"
       )
+
+    if (task.executionTime) {
+      this.scheduler.deleteScheduledJobs(taskId)
+      this.scheduler.addScheduledJob(taskId, task.executionTime, isTaskOnDB)
+    }
     return isTaskOnDB
   }
 
@@ -87,8 +127,7 @@ export default class TaskDataSourceImpl implements TaskDataSource {
       throw new ErrorBDEntityNotFound(
         "The id provided doesn't match with any task"
       )
-    const jobNames = schedule.scheduledJobs
-    if (jobNames[taskId]) jobNames[taskId].cancel()
+    this.scheduler.deleteScheduledJobs(taskOnDB._id)
     await Promise.all([userOnDB.save(), taskOnDB.remove()])
     return
   }
@@ -99,12 +138,12 @@ export default class TaskDataSourceImpl implements TaskDataSource {
       throw new ErrorBDEntityNotFound(
         "The id provided doesn't match with any user"
       )
-    const jobNames = schedule.scheduledJobs
+
     if (userOnDB.tasks?.length) {
       for (let i = 0; i < userOnDB.tasks.length; i++) {
         const taskId = userOnDB.tasks[i].toString()
         const task = await this.taskModel.findById(taskId)
-        if (jobNames[taskId]) jobNames[taskId].cancel()
+        this.scheduler.deleteScheduledJobs(taskId)
         task.remove()
       }
     }
