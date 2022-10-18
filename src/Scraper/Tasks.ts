@@ -2,7 +2,7 @@ import { URLS } from "./constants"
 import { WhatsAppClient } from "./WhatsappClient"
 
 export interface TasksI {
-  sesions: { [userBrowserConfPath: string]: string }
+  sesions: { [userBrowserConfPath: string]: WhatsAppClient }
   keepInitSesionTaskNoConcurrency(
     userBrowserConfPath: string,
     tries: number
@@ -14,27 +14,28 @@ export interface TasksI {
     onErrorHandler: (error: any) => void,
     onSuccessHandler: (arg?: any) => void
   ): () => Promise<void>
+  closeSesion(userBrowserConfPath: string): Promise<void>
 }
 
 export class Tasks implements TasksI {
-  sesions: { [userBrowserConfPath: string]: string } = {}
+  sesions: { [userBrowserConfPath: string]: WhatsAppClient } = {}
   //TODO: retocar la función generadora tanto de el caso de uso como aquí
   async *keepInitSesionTaskNoConcurrency(
     userBrowserConfPath: string,
     tries = 10
   ) {
-
     const whatsapp = new WhatsAppClient(URLS.whatsApp, {
-      headless: true,
+      headless: false,
       userDataDir: userBrowserConfPath,
     })
 
+    if (!this.sesions[userBrowserConfPath]) {
+      this.sesions[userBrowserConfPath] = whatsapp
+    } else {
+      throw new Error("The user is validating now, please try later")
+    }
+
     try {
-      if (!this.sesions[userBrowserConfPath]) {
-        this.sesions[userBrowserConfPath] = userBrowserConfPath
-      } else {
-        throw new Error("The user is validating now, please try later")
-      }
       yield await whatsapp.initSesion()
       await whatsapp.checkAuthSession(".landing-main", "#side")
       for (let i = 0; i <= tries; i++) {
@@ -50,13 +51,12 @@ export class Tasks implements TasksI {
       if (!whatsapp.isAuth) {
         throw new Error("Not Authenticated")
       } else {
-        Reflect.deleteProperty(this.sesions, userBrowserConfPath)
         return true
       }
     } catch (error) {
-      Reflect.deleteProperty(this.sesions, userBrowserConfPath)
       throw error
     } finally {
+      Reflect.deleteProperty(this.sesions, userBrowserConfPath)
       await whatsapp.closeSesion()
     }
   }
@@ -70,9 +70,13 @@ export class Tasks implements TasksI {
     args?: any[]
   ) {
     const whatsapp = new WhatsAppClient(URLS.whatsApp, {
-      headless: true,
+      headless: false,
       userDataDir: userBrowserConfPath,
     })
+
+    if (!this.sesions[userBrowserConfPath]) {
+      this.sesions[userBrowserConfPath] = whatsapp
+    }
     //TODO: retocar el cliente de whatsapp para que envíe mensaje correctamente
     return async () => {
       try {
@@ -89,8 +93,16 @@ export class Tasks implements TasksI {
       } catch (error: any) {
         onErrorHandler(error)
       } finally {
+        Reflect.deleteProperty(this.sesions, userBrowserConfPath)
         await whatsapp.closeSesion()
       }
     }
+  }
+
+  async closeSesion(userBrowserConfPath: string) {
+    console.log(this.sesions)
+    const sesionClosed = this.sesions[userBrowserConfPath].closeSesion()
+    Reflect.deleteProperty(this.sesions, userBrowserConfPath)
+    return await sesionClosed
   }
 }

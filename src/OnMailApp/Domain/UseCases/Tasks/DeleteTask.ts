@@ -30,6 +30,6 @@ export class DeleteTaskUseCase implements DeleteTaskUseCaseI {
     const tokenDecoded: any = this.authRepository.verifyToken(token)
     const user: User = await this.userRepository.getById(tokenDecoded._id)
     this.authRoleRepository.checkIsOwnTask(user, taskId)
-    await this.taskRepository.deleteTask(taskId, tokenDecoded._id)
+    return await this.taskRepository.deleteTask(taskId, tokenDecoded._id)
   }
 }

@@ -8,16 +8,13 @@ import UserDataSource from "../../../Interfaces/Data/DataSources/UserDataSource"
 export class TaskRepositoryImpl implements TaskRepository {
   public userDataSource: UserDataSource
   public taskDataSource: TaskDataSource
-  public tasks: TasksI
 
   constructor(
     _userDatasource: UserDataSource,
     _taskDataSource: TaskDataSource,
-    _tasks: TasksI,
   ) {
     this.userDataSource = _userDatasource
     this.taskDataSource = _taskDataSource
-    this.tasks = _tasks
   }
 
   async createTask(
@@ -30,6 +27,10 @@ export class TaskRepositoryImpl implements TaskRepository {
 
   async *WHInitSesion(userBrowserConfPath: string, tries: number) {
     yield* this.taskDataSource.WHInitSesion(userBrowserConfPath, tries)
+  }
+  
+  isWHSesionInitiated(userBrowserConfPath: string): boolean {
+    return this.taskDataSource.isWHSesionInitiated(userBrowserConfPath)
   }
 
   async getTasksOfUser(userId: User["_id"]): Promise<Task[]> {
@@ -48,7 +49,7 @@ export class TaskRepositoryImpl implements TaskRepository {
     return await this.taskDataSource.editTask(id, task)
   }
 
-  async deleteTask(taskId: string, userId: string): Promise<void> {
+  async deleteTask(taskId: string, userId: string): Promise<Task> {
     return await this.taskDataSource.deleteTask(taskId, userId)
   }
 

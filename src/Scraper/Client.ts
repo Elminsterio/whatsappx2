@@ -121,7 +121,7 @@ export class Client {
   }
 
   async closeSesion() {
-    this.browser.close()
+    await this.browser.close()
     this.state = CLIENT_STATES.off
   }
 }

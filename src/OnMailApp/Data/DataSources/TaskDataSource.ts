@@ -29,6 +29,10 @@ export default class TaskDataSourceImpl implements TaskDataSource {
     yield* this.WHScraper.startAuthSesion(userBrowserConfPath, tries)
   }
 
+  isWHSesionInitiated(userBrowserConfPath: string) {
+    return this.WHScraper.isSesionInitiated(userBrowserConfPath)
+  }
+
   async getTasksOfUser(userId: User["_id"]): Promise<Task[]> {
     return await this.taskModel.find({ user: userId })
   }
@@ -108,7 +112,7 @@ export default class TaskDataSourceImpl implements TaskDataSource {
     return isTaskOnDB
   }
 
-  async deleteTask(taskId: string, userId: string): Promise<void> {
+  async deleteTask(taskId: string, userId: string): Promise<Task> {
     const userOnDB = await this.userModel.findById(userId)
     if (!userOnDB)
       throw new ErrorBDEntityNotFound(
@@ -129,7 +133,7 @@ export default class TaskDataSourceImpl implements TaskDataSource {
       )
     this.scheduler.deleteScheduledJobs(taskOnDB._id)
     await Promise.all([userOnDB.save(), taskOnDB.remove()])
-    return
+    return await taskOnDB
   }
 
   async deleteAllTasks(userId: string) {

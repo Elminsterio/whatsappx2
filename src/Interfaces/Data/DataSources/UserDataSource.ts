@@ -1,4 +1,4 @@
-import { User, DynamicUser } from "../../../Domain/Entities/User"
+import { User, DynamicUser } from "../../../OnMailApp/Domain/Entities/User"
 
 export default interface UserDataSource {
   get(): Promise<User[]> | User[]

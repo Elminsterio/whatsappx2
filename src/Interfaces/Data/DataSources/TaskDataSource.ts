@@ -11,7 +11,8 @@ export default interface TaskDataSource {
     userBrowserConfPath: string
   ): Promise<Task> | Task
   editTask(taskId: string, task: DynamicTask): Promise<Task> | Task
-  deleteTask(taskId: string, userId: string): Promise<void>
+  deleteTask(taskId: string, userId: string): Promise<Task>
   deleteAllTasks(userId: string): Promise<void>
   WHInitSesion(userBrowserConfPath: string, tries: number): AsyncGenerator
+  isWHSesionInitiated(userBrowserConfPath: string): boolean
 }

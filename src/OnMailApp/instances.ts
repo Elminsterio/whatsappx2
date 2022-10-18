@@ -59,8 +59,7 @@ export const repositories = {
   authRoleRepo: new AuthRoleRepositoryImpl(),
   taskRepo: new TaskRepositoryImpl(
     dataSources.userMongoDataSource,
-    dataSources.taskDataSource,
-    tasks
+    dataSources.taskDataSource
   ),
 }
 

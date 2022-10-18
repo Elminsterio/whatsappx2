@@ -21,7 +21,7 @@ export class DeleteUserUseCase implements DeleteUserUseCaseI {
     _userRepository: UsersRepository,
     _taskRepository: TaskRepository,
     _authRepository: AuthRepository,
-    _authRoleRepository: AuthRoleRepository
+    _authRoleRepository: AuthRoleRepository,
   ) {
     this.usersRepository = _userRepository
     this.taskRepository = _taskRepository
@@ -34,10 +34,13 @@ export class DeleteUserUseCase implements DeleteUserUseCaseI {
       this.authRepository.verifyToken(token),
       userId
     )
+    const userDir = path.join(process.cwd(), "src", "assets", userId)
+    if(!this.taskRepository.isWHSesionInitiated(userDir)) {
+      throw new Error('The server is launching a user task, please, retry in few minutes')
+    }
     this.taskRepository.deleteAllTasks(userId)
     await this.authRepository.deleteRefreshToken(userId)
     const user = await this.usersRepository.delete(userId)
-    const userDir = path.join(process.cwd(), "src", "assets", userId)
     if (fs.existsSync(userDir)) {
       await fsPromise.rm(userDir, { recursive: true, force: true })
     }

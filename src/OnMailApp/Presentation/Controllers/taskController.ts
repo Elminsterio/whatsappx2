@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { UnathorizedError } from "../../Domain/Entities/Errors"
+import { MultipleValidationDataError, UnathorizedError } from "../../Domain/Entities/Errors"
 import { DynamicTask } from "../../Domain/Entities/Task"
 import { WriteMessageUseCaseI } from "../../Domain/UseCases/Tasks/CreateWriteMessage"
 import { GetUserTasksUseCaseI } from "../../Domain/UseCases/Tasks/GetUserTasks"
@@ -7,6 +7,7 @@ import { RegisterSesionUseCaseI } from "../../Domain/UseCases/Tasks/RegisterSesi
 import { TaskControllerI } from "../../../Interfaces/Presentation/Controllers/taskControllerInterface"
 import { DeleteTaskUseCaseI } from "../../Domain/UseCases/Tasks/DeleteTask"
 import { EditTaskUseCaseI } from "../../Domain/UseCases/Tasks/EditTask"
+import { validationResult } from "express-validator"
 
 export class TaskController implements TaskControllerI<Request, Response> {
   writeMessageUseCase: WriteMessageUseCaseI
@@ -39,11 +40,15 @@ export class TaskController implements TaskControllerI<Request, Response> {
   }
 
   async writeMessage(req: Request, res: Response) {
+    const errors = validationResult(req)
+    const messageError = JSON.stringify(errors.array())
+
+    if (!errors.isEmpty()) throw new MultipleValidationDataError(messageError)
+
     const { id, message, time, target } = req.body
     const token = req.get("Authorization")
     if (!token)
       throw new UnathorizedError("Bearer token is not provided or is invalid")
-
     const task: DynamicTask = {
       executionTime: time,
       userId: id,
