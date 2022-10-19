@@ -6,5 +6,5 @@ export const loginValidator = [
 ]
 
 export const refreshTokenValidator = [
-  check("refreshToken", "Enter a token").isString().trim().escape(),
+  check("refreshToken", "Enter a correct token").isString().trim().escape(),
 ]

@@ -20,7 +20,6 @@ export default class UserMongoDataSourceImpl implements UserDataSource {
       throw new ErrorBDEntityFound("User already exists on database")
 
     const newUser = new this.userModel(user)
-    newUser.browserConfigPath = newUser._id
     return await newUser.save()
   }
 

@@ -37,15 +37,26 @@ export class StartTasksJob {
           stopped,
           _id,
         } = allTasks[i]
+
         const actualUserTaskOwner: any = await this.userDataSource.getById(
           userId
         )
 
         if (!actualUserTaskOwner.isAuth || !actualUserTaskOwner || stopped)
-          continue
+        continue
+
+        const ISOdateRegexp = new RegExp(
+          /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,
+          "gi"
+        )
+
+        const executionTimeParsed = ISOdateRegexp.test(executionTime)
+          ? new Date(executionTime)
+          : executionTime
         if (
-          executionTime instanceof Date &&
-          executionTime.getMilliseconds() > this.scheduler.millisecondsNextDay
+          executionTimeParsed instanceof Date &&
+          executionTimeParsed > this.scheduler.nextDay &&
+          executionTimeParsed < this.scheduler.actualDate
         )
           continue
 
@@ -56,7 +67,7 @@ export class StartTasksJob {
           this.taskDataSource.editTask(_id, { stopped: true })
         }
         const onSuccessHandler = async () => {
-          if (executionTime instanceof Date) {
+          if (executionTimeParsed instanceof Date) {
             this.taskDataSource.editTask(_id, { historic: true })
           }
         }
@@ -85,7 +96,7 @@ export class StartTasksJob {
         }
 
         const idString = _id.toString()
-        this.scheduler.addScheduledJob(idString, executionTime, cb)
+        this.scheduler.addScheduledJob(idString, executionTimeParsed, cb)
       }
       console.log(this.scheduler.getScheduledJobs())
     } catch (error) {

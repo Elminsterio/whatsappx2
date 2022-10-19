@@ -1,6 +1,6 @@
 type TasksTypes = "WriteMessage" | "sendImage"
 export interface Task {
-  executionTime: Date | string
+  executionTime: string
   taskType: TasksTypes
   action: string
   target: string

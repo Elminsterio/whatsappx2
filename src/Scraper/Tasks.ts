@@ -44,7 +44,6 @@ export class Tasks implements TasksI {
         )
         if (!qrTry) break
         yield qrTry
-        console.log(i, tries)
         if (i === tries) throw new Error("Maximum tries, please try again")
       }
       await whatsapp.checkAuthSession(".landing-main", "#side")
@@ -100,7 +99,6 @@ export class Tasks implements TasksI {
   }
 
   async closeSesion(userBrowserConfPath: string) {
-    console.log(this.sesions)
     const sesionClosed = this.sesions[userBrowserConfPath].closeSesion()
     Reflect.deleteProperty(this.sesions, userBrowserConfPath)
     return await sesionClosed

@@ -5,8 +5,11 @@ import cors from "cors"
 import mongoose from "mongoose"
 import express, { Express, ErrorRequestHandler } from "express"
 import * as http from "http"
+import * as dotenv from "dotenv"
 import { RoutesRegister } from "./OnMailApp/Presentation/Routes/routesRegister"
 import { ErrorHandler } from "./OnMailApp/Presentation/ErrorHandlers/ErrorHandler"
+import helmet from "helmet"
+import { config } from "./OnMailApp/Config/config"
 
 export class Server {
   private express: Express
@@ -14,13 +17,11 @@ export class Server {
   private httpServer?: http.Server
 
   constructor(port: string) {
+    dotenv.config()
     this.port = port
     this.express = express()
-    this.express.use(
-      cors({
-        origin: "*",
-      })
-    )
+    this.express.use(helmet())
+    this.express.use(cors())
     this.express.use(json())
     this.express.use(urlencoded({ extended: true }))
     new RoutesRegister(this.express).registerAllRoutes()
@@ -38,7 +39,7 @@ export class Server {
         console.log("  Press CTRL-C to stop\n")
         resolve()
       })
-      mongoose.connect("mongodb://localhost:27017/OnMailTest")
+      mongoose.connect(config.MONGO_URI)
     })
   }
 

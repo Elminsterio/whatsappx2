@@ -64,6 +64,15 @@ export default class TaskDataSourceImpl implements TaskDataSource {
     userOnDB.tasks.push(_id)
     const [, taskSaved] = await Promise.all([userOnDB.save(), newTask.save()])
 
+    const ISOdateRegexp = new RegExp(
+      /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,
+      "gi"
+    )
+
+    const executionTimeParsed = ISOdateRegexp.test(executionTime)
+      ? new Date(executionTime)
+      : executionTime
+
     const onErrorHandler = async (error: any) => {
       if (error.message === "Not authenticated") {
         userOnDB.isAuth = false
@@ -73,7 +82,7 @@ export default class TaskDataSourceImpl implements TaskDataSource {
       await newTask.save()
     }
     const onSuccessHandler = async () => {
-      if (newTask.executionTime instanceof Date) {
+      if (executionTimeParsed instanceof Date) {
         newTask.historic = true
         await newTask.save()
       }
@@ -88,13 +97,15 @@ export default class TaskDataSourceImpl implements TaskDataSource {
     const stringId = _id.toString()
     this.scheduler.addScheduledJob(
       stringId,
-      executionTime,
+      executionTimeParsed,
       writeFunctionOnQueue
     )
 
     return await taskSaved
   }
-
+  
+  //TODO: separate of concerns, create one different data source for Scheduler or Scraper  
+  //TODO: modify editTask
   async editTask(taskId: string, task: DynamicTask): Promise<Task> {
     const isTaskOnDB = await this.taskModel.findByIdAndUpdate(taskId, task, {
       new: true,

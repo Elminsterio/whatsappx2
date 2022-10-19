@@ -26,8 +26,9 @@ export class RefreshTokenUseCase implements RefreshTokenUseCaseI {
     const refreshTokenStored = await this.authRepository.getRefreshTokenByToken(
       refreshToken
     )
+    console.log(refreshTokenStored)
     if (
-      refreshTokenStored &&
+      refreshTokenStored ??
       this.authRepository.verifyRefreshToken(refreshToken)
     ) {
       const user = await this.usersRepository.getById(refreshTokenStored.user)

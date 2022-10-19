@@ -2,24 +2,17 @@ import schedule, { Job } from "node-schedule"
 import { SchedulerI } from "../../../../Interfaces/Data/DataSources/Scheduler/SchedulerInterface"
 
 export class Scheduler implements SchedulerI {
-  public millisecondsActualDate: number
-  public millisecondsNextDay: number
+  public actualDate: Date
+  public nextDay: Date
 
   constructor() {
     const actualDate: Date = new Date()
     const actualYear: number = actualDate.getFullYear()
     const actualMonth: number = actualDate.getMonth()
     const actualDay: number = actualDate.getDate()
-    const nextDay: number = actualDate.setDate(actualDay + 1)
-    this.millisecondsActualDate = actualDate.getMilliseconds()
-    this.millisecondsNextDay = new Date(
-      actualYear,
-      actualMonth,
-      nextDay,
-      0,
-      0,
-      0
-    ).getMilliseconds()
+    const nextDay: Date = new Date(actualYear, actualMonth, actualDay + 1, 0, 0, 0)
+    this.actualDate = new Date()
+    this.nextDay = nextDay
   }
 
   getScheduledJobs(): { [jobName: string]: Job } {
@@ -32,14 +25,11 @@ export class Scheduler implements SchedulerI {
     task: Function
   ): boolean | void {
     if (
-      !(
         executionTime instanceof Date &&
-        executionTime.getMilliseconds() > this.millisecondsNextDay
-      )
+        executionTime < this.nextDay &&
+        executionTime > this.actualDate
     ) {
       schedule.scheduleJob(taskId, executionTime, task as schedule.JobCallback)
-    } else {
-      
     }
   }
 
