@@ -29,6 +29,10 @@ export class TaskRepositoryImpl implements TaskRepository {
     yield* this.taskDataSource.WHInitSesion(userBrowserConfPath, tries)
   }
   
+  async WHGetContacts(userBrowserConfPath: string): Promise<any> {
+    return await this.taskDataSource.WHGetContacts(userBrowserConfPath)
+  }
+  
   isWHSesionInitiated(userBrowserConfPath: string): boolean {
     return this.taskDataSource.isWHSesionInitiated(userBrowserConfPath)
   }

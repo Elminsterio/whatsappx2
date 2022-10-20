@@ -31,14 +31,12 @@ export class WhatsAppClient extends Client {
     let contactsArr = await this.page.evaluate(async () => {
       return await readAllKeyValuePairs("model-storage", "contact")
     })
-
     if (phone) {
       contactsArr = contactsArr.filter((contact: any) => {
         const { id } = contact
         return id.includes(phone)
       })
     }
-
     console.table(contactsArr)
     return contactsArr
   }

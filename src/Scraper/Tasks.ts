@@ -7,6 +7,7 @@ export interface TasksI {
     userBrowserConfPath: string,
     tries: number
   ): AsyncGenerator<string | boolean | void, boolean | undefined, unknown>
+  getAllContactsTask(userBrowserConfPath: string): Promise<any>
   writeTask(
     userBrowserConfPath: string,
     message: string,
@@ -53,6 +54,33 @@ export class Tasks implements TasksI {
         return true
       }
     } catch (error) {
+      throw error
+    } finally {
+      Reflect.deleteProperty(this.sesions, userBrowserConfPath)
+      await whatsapp.closeSesion()
+    }
+  }
+
+  async getAllContactsTask(userBrowserConfPath: string) {
+    const whatsapp = new WhatsAppClient(URLS.whatsApp, {
+      headless: false,
+      userDataDir: userBrowserConfPath,
+    })
+
+    if (!this.sesions[userBrowserConfPath]) {
+      this.sesions[userBrowserConfPath] = whatsapp
+    }
+
+    try {
+      await whatsapp.initSesion()
+      const isAuth = await whatsapp.checkAuthSession(".landing-main", "#side")
+      if (!isAuth) {
+        throw new Error("Not authenticated")
+      } else {
+        await whatsapp.awakeSession()
+      }
+      return await whatsapp.getContacts()
+    } catch (error: any) {
       throw error
     } finally {
       Reflect.deleteProperty(this.sesions, userBrowserConfPath)

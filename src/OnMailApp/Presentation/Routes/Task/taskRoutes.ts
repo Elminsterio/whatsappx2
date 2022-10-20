@@ -44,6 +44,13 @@ export class TaskRoutes implements TaskRoutesI {
       installWriteMessageRoute
     )
 
+    const installGetContactsRoute = (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) => this.getContacts(req, res, next)
+    router.get("/WH/getContacts/:id", installGetContactsRoute)
+
     const installRegisterSesionRoute = (
       req: Request,
       res: Response,
@@ -66,6 +73,16 @@ export class TaskRoutes implements TaskRoutesI {
       return next(error)
     }
   }
+
+  async getContacts(req: Request, res: Response, next: NextFunction) {
+    try {
+      const contacts = await this.taskController.getContacts(req, res)
+      return res.json({ result: contacts })
+    } catch (error) {
+      return next(error)
+    }
+  }
+
   //TODO: Learn to close correctly connection
   async registerSesion(
     req: Request,

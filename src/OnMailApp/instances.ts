@@ -18,6 +18,7 @@ import { RefreshTokenUseCase } from "./Domain/UseCases/Auth/RefreshToken"
 import { WriteMessageUseCase } from "./Domain/UseCases/Tasks/CreateWriteMessage"
 import { DeleteTaskUseCase } from "./Domain/UseCases/Tasks/DeleteTask"
 import { EditTaskUseCase } from "./Domain/UseCases/Tasks/EditTask"
+import { GetContactsUseCase } from "./Domain/UseCases/Tasks/GetContacts"
 import { GetUserTasksUseCase } from "./Domain/UseCases/Tasks/GetUserTasks"
 import { RegisterSesionUseCase } from "./Domain/UseCases/Tasks/RegisterSesion"
 import { CreateUserUseCase } from "./Domain/UseCases/User/CreateUser"
@@ -119,6 +120,12 @@ export const taskUseCases = {
     repositories.authRoleRepo,
     repositories.taskRepo
   ),
+  getContactsUseCase: new GetContactsUseCase(
+    repositories.authRepo,
+    repositories.authRoleRepo,
+    repositories.taskRepo,
+    repositories.userRepo
+  ),
   deleteTaskUseCase: new DeleteTaskUseCase(
     repositories.authRepo,
     repositories.authRoleRepo,
@@ -142,6 +149,7 @@ export const authController: AuthController = new AuthController(
 
 export const taskController: TaskController = new TaskController(
   taskUseCases.writeMessage,
+  taskUseCases.getContactsUseCase,
   taskUseCases.registerSesion,
   taskUseCases.getTasksUseCase,
   taskUseCases.deleteTaskUseCase,

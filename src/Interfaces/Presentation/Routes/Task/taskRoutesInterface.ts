@@ -7,6 +7,11 @@ export interface TaskRoutesI extends BaseRouteI {
     res: Response,
     next: NextFunction
   ) => Promise<Response | void>
+  getContacts: (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => Promise<Response | void>
   registerSesion: (
     req: Request,
     res: Response,

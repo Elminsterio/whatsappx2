@@ -28,6 +28,10 @@ export default class TaskDataSourceImpl implements TaskDataSource {
   async *WHInitSesion(userBrowserConfPath: string, tries: number) {
     yield* this.WHScraper.startAuthSesion(userBrowserConfPath, tries)
   }
+  
+  async WHGetContacts(userBrowserConfPath: string): Promise<any> {
+    return await this.WHScraper.getAllContacts(userBrowserConfPath)
+  }
 
   isWHSesionInitiated(userBrowserConfPath: string) {
     return this.WHScraper.isSesionInitiated(userBrowserConfPath)

@@ -32,6 +32,10 @@ export class WHScraper implements WHScraperI {
     yield* this.tasks.keepInitSesionTaskNoConcurrency(userBrowserConfPath, tries)
   }
 
+  async getAllContacts(userBrowserConfPath: string): Promise<any> {
+    return await this.tasks.getAllContactsTask(userBrowserConfPath)
+  }
+
   writeTaskOnQueue(
     userBrowserConfPath: string,
     action: string,

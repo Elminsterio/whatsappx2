@@ -14,5 +14,6 @@ export default interface TaskDataSource {
   deleteTask(taskId: string, userId: string): Promise<Task>
   deleteAllTasks(userId: string): Promise<void>
   WHInitSesion(userBrowserConfPath: string, tries: number): AsyncGenerator
+  WHGetContacts(userBrowserConfPath: string): Promise<any>
   isWHSesionInitiated(userBrowserConfPath: string): boolean
 }

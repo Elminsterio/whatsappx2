@@ -18,6 +18,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon",
+    "build": "ts-node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

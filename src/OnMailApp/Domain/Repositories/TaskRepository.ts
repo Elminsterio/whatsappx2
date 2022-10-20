@@ -3,6 +3,7 @@ import { User } from "../Entities/User"
 
 export default interface TaskRepository {
   WHInitSesion(userBrowserConfPath: string, tries: number): AsyncGenerator
+  WHGetContacts(userBrowserConfPath: string): Promise<any>
   isWHSesionInitiated(userBrowserConfPath: string): boolean
   getTasksOfUser(userId: User["_id"]): Promise<Task[]> | Task[]
   getTaskById(id: Task["userId"]): Promise<Task> | Task
