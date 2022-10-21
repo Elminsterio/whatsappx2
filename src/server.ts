@@ -5,7 +5,6 @@ import cors from "cors"
 import mongoose from "mongoose"
 import express, { Express, ErrorRequestHandler } from "express"
 import * as http from "http"
-import * as dotenv from "dotenv"
 import { RoutesRegister } from "./OnMailApp/Presentation/Routes/routesRegister"
 import { ErrorHandler } from "./OnMailApp/Presentation/ErrorHandlers/ErrorHandler"
 import helmet from "helmet"
@@ -17,8 +16,7 @@ export class Server {
   private httpServer?: http.Server
 
   constructor(port: string) {
-    dotenv.config()
-    this.port = port
+    this.port = config.PORT
     this.express = express()
     this.express.use(helmet())
     this.express.use(cors())

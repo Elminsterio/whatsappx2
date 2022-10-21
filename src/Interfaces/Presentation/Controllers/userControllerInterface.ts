@@ -1,4 +1,4 @@
-import { User } from "../../../Domain/Entities/User";
+import { User } from "../../../OnMailApp/Domain/Entities/User";
 
 export interface UserControllerI<T, P> {
   getUsers: (req: T, res: P) => Promise<User[]>

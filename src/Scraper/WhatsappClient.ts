@@ -13,8 +13,13 @@ export class WhatsAppClient extends Client {
     })
     await searchEl.click()
     await searchEl.type(target)
-    await this.page.keyboard.press('Enter')
 
+    const selectorChatToTarget = `[title="${target}"]`
+    const chatEl = await this.page.waitForSelector(selectorChatToTarget, {
+      timeout: 120000,
+    })
+    if (!chatEl) throw new Error("The target was not found")
+    await chatEl.click()
     const writeEl = await this.page.waitForSelector(
       `#main > footer > div._2BU3P.tm2tP.copyable-area > div > span:nth-child(2) > div > div._2lMWa > div.p3_M1 > div > div.fd365im1.to2l77zo.bbv8nyr4.mwp4sxku.gfz4du6o.ag5g9lrv`,
       {

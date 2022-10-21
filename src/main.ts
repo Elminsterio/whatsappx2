@@ -1,6 +1,5 @@
 import { OnMailApp } from "./OnMailApp"
 
-
 async function init() {
   let app: any;
   try {
