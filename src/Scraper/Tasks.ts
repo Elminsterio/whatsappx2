@@ -41,7 +41,7 @@ export class Tasks implements TasksI {
       await whatsapp.checkAuthSession(".landing-main", "#side")
       for (let i = 0; i <= tries; i++) {
         const qrTry = await whatsapp.authenticateSession(
-          '[data-testid="qrcode"]'
+          'div[data-ref]'
         )
         if (!qrTry) break
         yield qrTry
@@ -63,7 +63,7 @@ export class Tasks implements TasksI {
 
   async getAllContactsTask(userBrowserConfPath: string) {
     const whatsapp = new WhatsAppClient(URLS.whatsApp, {
-      headless: false,
+      headless: true,
       userDataDir: userBrowserConfPath,
     })
 

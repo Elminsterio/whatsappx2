@@ -41,7 +41,7 @@ export class Client {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
     )
     await this.page.goto(this.url, {
-      waitUntil: "load",
+      waitUntil: "networkidle2",
     })
     this.state = CLIENT_STATES.starting
   }
@@ -78,7 +78,7 @@ export class Client {
         }, stringCSSSelectorOfQrElement)
 
         if (!qr) {
-          clearTimeout(timer)
+          clearTimeout(timer?.toString())
           resolve(false)
           return
         }
@@ -102,7 +102,7 @@ export class Client {
         }, stringCSSSelectorOfQrElement)
 
         if (!qr) {
-          clearInterval(interval)
+          clearInterval(interval?.toString())
           resolve()
           return
         }

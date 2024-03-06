@@ -42,7 +42,6 @@ export class WhatsAppClient extends Client {
         return id.includes(phone)
       })
     }
-    console.table(contactsArr)
     return contactsArr
   }
 
@@ -61,7 +60,6 @@ export class WhatsAppClient extends Client {
         return name.toLowerCase().includes(name.toLowerCase())
       })
     }
-    console.table(groupsArr)
     return groupsArr
   }
 }

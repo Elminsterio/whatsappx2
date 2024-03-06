@@ -25,16 +25,23 @@ export default class TaskDataSourceImpl implements TaskDataSource {
     this.scheduler = _scheduler
   }
 
+  
+  isWHSesionInitiated(userBrowserConfPath: string) {
+    return this.WHScraper.isSesionInitiated(userBrowserConfPath)
+  }
+
   async *WHInitSesion(userBrowserConfPath: string, tries: number) {
     yield* this.WHScraper.startAuthSesion(userBrowserConfPath, tries)
   }
   
-  async WHGetContacts(userBrowserConfPath: string): Promise<any> {
-    return await this.WHScraper.getAllContacts(userBrowserConfPath)
-  }
-
-  isWHSesionInitiated(userBrowserConfPath: string) {
-    return this.WHScraper.isSesionInitiated(userBrowserConfPath)
+  async WHGetContacts(userBrowserConfPath: string, userId: User["_id"]): Promise<any> {
+    try {
+      return await this.WHScraper.getAllContacts(userBrowserConfPath)
+    } catch (error) {
+      const userOnDb: any = await this.userModel.findById({ _id: userId })
+      userOnDb.isAuth = false
+      userOnDb.save()
+    }
   }
 
   async getTasksOfUser(userId: User["_id"]): Promise<Task[]> {

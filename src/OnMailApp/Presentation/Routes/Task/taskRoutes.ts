@@ -83,7 +83,7 @@ export class TaskRoutes implements TaskRoutesI {
     }
   }
 
-  //TODO: Learn to close correctly connection
+  //TODO: Learn to close correctly reconnection when try from navigator
   async registerSesion(
     req: Request,
     res: Response,
@@ -93,21 +93,20 @@ export class TaskRoutes implements TaskRoutesI {
       const qrs = this.taskController.registerSesion(req, res)
       await qrs.next()
 
-      res.setHeader("Content-Type", "text/event-stream")
       res.setHeader("Cache-Control", "no-store")
+      res.setHeader('Access-Control-Allow-Origin', '*')
+      res.setHeader('Access-Control-Allow-Credentials', 'true')
       res.flushHeaders()
-
       for await (let qr of qrs) {
-        const qrString = JSON.stringify({ result: qr })
-        res.write(`data:${qrString}\n\n`)
+        res.write(`event: message\n`)
+        res.write(`data: {"result": "${qr}"}\n\n`)
       }
-      res.write(`event:success\n`)
-      res.write(`data:{result: successfully registered}\n\n`)
-      res.end()
+      res.write(`event: success\n`)
+      res.write(`data: {"result": "successfully registered"}\n\n`)
     } catch (error: any) {
-      console.log(error)
-      res.write(`event:error\n`)
-      res.write(`data:{result: ${error.message}}\n\n`)
+      res.write(`event: error\n`)
+      res.write(`data: {"result": "${error.message}"}\n\n`)
+    } finally {
       res.end()
     }
   }
@@ -144,7 +143,7 @@ export class TaskRoutes implements TaskRoutesI {
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      await this.taskController.deleteTask(req, res)
+      this.taskController.deleteTask(req, res)
       return res.json({})
     } catch (error) {
       return next(error)

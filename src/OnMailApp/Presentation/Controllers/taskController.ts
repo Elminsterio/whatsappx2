@@ -51,7 +51,6 @@ export class TaskController implements TaskControllerI<Request, Response> {
     const token = req.get("Authorization")
     if (!token)
       throw new UnathorizedError("Bearer token is not provided or is invalid")
-
     return await this.getContactsUseCase.invoke(id, token)
   }
 

@@ -38,7 +38,7 @@ export class UserController implements UserControllerI<Request, Response> {
     const { id } = req.params
     const token = req.get("Authorization")
     if(!token) throw new UnathorizedError("Bearer token is not provided or is invalid")
-
+  
     return await this.getUserByIdUseCase.invoke(id, token)
   }
 

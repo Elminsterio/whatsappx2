@@ -31,8 +31,10 @@ export class GetContactsUseCase implements GetContactsUseCaseI {
     this.authRoleRepository.checkIsOwnId(tokenDecoded, userId)
     const user = await this.userRepository.getById(userId)
     this.authRoleRepository.checkIsWHAuthenticated(user)
-    return await this.taskRepository.WHGetContacts(
-      path.join(process.cwd(), "src", "assets", userId, "WH")
+    const contacts = await this.taskRepository.WHGetContacts(
+      path.join(process.cwd(), "src", "assets", userId, "WH"),
+      userId
     )
+    return contacts
   }
 }

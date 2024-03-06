@@ -1,7 +1,10 @@
 import { Request, Response, Router, NextFunction } from "express"
 import { AuthRoutesI } from "../../../../Interfaces/Presentation/Routes/Auth/authRoutesInterface"
 import { AuthControllerI } from "../../../../Interfaces/Presentation/Controllers/authControllerInterface"
-import { loginValidator, refreshTokenValidator } from "../../Validators/authValidators"
+import {
+  loginValidator,
+  refreshTokenValidator,
+} from "../../Validators/authValidators"
 
 export class AuthRoutes implements AuthRoutesI {
   private authController: AuthControllerI<Request, Response>
@@ -30,7 +33,11 @@ export class AuthRoutes implements AuthRoutesI {
 
     router.post("/login", loginValidator, installLoginRoute)
     router.post("/logout/:id", installLogoutRoute)
-    router.post("/refreshToken", refreshTokenValidator, installRefreshTokenRoute)
+    router.post(
+      "/refreshToken",
+      refreshTokenValidator,
+      installRefreshTokenRoute
+    )
     return router
   }
 
@@ -67,7 +74,7 @@ export class AuthRoutes implements AuthRoutesI {
   ): Promise<Response | void> {
     try {
       const newToken = await this.authController.RefreshToken(req, res)
-      return res.json({ token: newToken })
+      return res.json({ result: { token: newToken } })
     } catch (error) {
       return next(error)
     }
