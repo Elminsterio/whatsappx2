@@ -7,7 +7,7 @@ export class WhatsAppClient extends Client {
 
   async writeMsg(target: string, message: string) {
     const selectorSearch =
-      "#side > div.uwk68 > div > div > div._16C8p > div > div._13NKt.copyable-text.selectable-text"
+      'div[role="textbox"]'
     const searchEl = await this.page.waitForSelector(selectorSearch, {
       timeout: 120000,
     })
@@ -21,7 +21,7 @@ export class WhatsAppClient extends Client {
     if (!chatEl) throw new Error("The target was not found")
     await chatEl.click()
     const writeEl = await this.page.waitForSelector(
-      `#main > footer > div._2BU3P.tm2tP.copyable-area > div > span:nth-child(2) > div > div._2lMWa > div.p3_M1 > div > div.fd365im1.to2l77zo.bbv8nyr4.mwp4sxku.gfz4du6o.ag5g9lrv`,
+      `footer div[role="textbox"]`,
       {
         timeout: 120000,
       }
