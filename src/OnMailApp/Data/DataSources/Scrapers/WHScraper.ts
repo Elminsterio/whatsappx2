@@ -14,7 +14,7 @@ export class WHScraper implements WHScraperI {
     this.sesions = _tasks.sesions
   }
   
-  isSesionInitiated(userBrowserConfPath: string) {
+  isSessionInitiated(userBrowserConfPath: string) {
     if(this.sesions[userBrowserConfPath]) {
       return true
     }
@@ -36,10 +36,10 @@ export class WHScraper implements WHScraperI {
     return await this.tasks.getAllContactsTask(userBrowserConfPath)
   }
 
+
   writeTaskOnQueue(
     userBrowserConfPath: string,
-    action: string,
-    target: string,
+    sendObj: any,
     onErrorHandler: (error: any) => void,
     onSuccessHandler: (arg: any) => void
   ) {
@@ -47,8 +47,7 @@ export class WHScraper implements WHScraperI {
       this.taskManager.addTask(
         this.tasks.writeTask(
           userBrowserConfPath,
-          action as string,
-          target as string,
+          sendObj,
           onErrorHandler,
           onSuccessHandler
         )

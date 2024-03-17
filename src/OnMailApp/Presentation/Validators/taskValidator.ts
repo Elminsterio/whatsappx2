@@ -26,5 +26,6 @@ export const createWriteTaskValidator = [
   }),
   check("message", "You should set message to send").isString().escape(),
   check("id", "ID is necessary").isString().escape(),
-  check("target", "Enter contact to send message").trim().escape(),
+  check("targetPhone", "Enter phone to send message").trim().escape(),
+  check("destinatary", "Enter destinatary to send message").trim().escape(),
 ]

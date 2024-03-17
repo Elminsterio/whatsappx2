@@ -5,14 +5,14 @@ export class WhatsAppClient extends Client {
     super(url, options)
   }
 
-  async writeMsg(target: string, message: string) {
+  async writeMsg(phone: string, target: string, message: string) {
     const selectorSearch =
       'div[role="textbox"]'
     const searchEl = await this.page.waitForSelector(selectorSearch, {
       timeout: 120000,
     })
     await searchEl.click()
-    await searchEl.type(target)
+    await searchEl.type(phone)
 
     const selectorChatToTarget = `[title="${target}"]`
     const chatEl = await this.page.waitForSelector(selectorChatToTarget, {

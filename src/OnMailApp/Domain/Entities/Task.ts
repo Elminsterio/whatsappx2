@@ -3,7 +3,8 @@ export interface Task {
   executionTime: string
   taskType: TasksTypes
   action: string
-  target: string
+  targetPhone: string
+  destinatary: string
   sended?: boolean
   historic: boolean
   stopped: boolean
@@ -18,7 +19,8 @@ export type DynamicTask = Partial<
     | "userId"
     | "action"
     | "taskType"
-    | "target"
+    | "targetPhone"
+    | "destinatary"
     | "stopped"
     | "historic"
   >

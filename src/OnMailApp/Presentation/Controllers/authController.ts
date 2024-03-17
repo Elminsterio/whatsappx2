@@ -43,7 +43,7 @@ export class AuthController implements AuthControllerI<Request, Response> {
     const errors = validationResult(req)
     const messageError = JSON.stringify(errors.array())
 
-    if (!errors.isEmpty()) throw new ValidationDataError('Please enter a token')
+    if (!errors.isEmpty()) throw new ValidationDataError('Please enter refresh token')
 
     const { refreshToken } = req.body
 

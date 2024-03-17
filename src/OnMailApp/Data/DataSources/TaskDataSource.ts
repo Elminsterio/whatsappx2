@@ -27,7 +27,7 @@ export default class TaskDataSourceImpl implements TaskDataSource {
 
   
   isWHSesionInitiated(userBrowserConfPath: string) {
-    return this.WHScraper.isSesionInitiated(userBrowserConfPath)
+    return this.WHScraper.isSessionInitiated(userBrowserConfPath)
   }
 
   async *WHInitSesion(userBrowserConfPath: string, tries: number) {
@@ -41,11 +41,12 @@ export default class TaskDataSourceImpl implements TaskDataSource {
       const userOnDb: any = await this.userModel.findById({ _id: userId })
       userOnDb.isAuth = false
       userOnDb.save()
+      throw error;
     }
   }
 
   async getTasksOfUser(userId: User["_id"]): Promise<Task[]> {
-    return await this.taskModel.find({ user: userId })
+    return await this.taskModel.find({ userId })
   }
 
   async getTaskById(id: string): Promise<Task> {
@@ -70,7 +71,7 @@ export default class TaskDataSourceImpl implements TaskDataSource {
         "The id provided doesn't match with any user"
       )
     const newTask = new this.taskModel(task)
-    const { action, target, executionTime, _id } = newTask
+    const { action, destinatary, targetPhone, executionTime, _id } = newTask
 
     userOnDB.tasks.push(_id)
     const [, taskSaved] = await Promise.all([userOnDB.save(), newTask.save()])
@@ -98,10 +99,10 @@ export default class TaskDataSourceImpl implements TaskDataSource {
         await newTask.save()
       }
     }
+
     const writeFunctionOnQueue = this.WHScraper.writeTaskOnQueue(
       userBrowserConfPath,
-      action,
-      target,
+      {action, destinatary, targetPhone},
       onErrorHandler,
       onSuccessHandler
     )
@@ -111,7 +112,6 @@ export default class TaskDataSourceImpl implements TaskDataSource {
       executionTimeParsed,
       writeFunctionOnQueue
     )
-
     return await taskSaved
   }
   

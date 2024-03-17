@@ -60,7 +60,7 @@ export class TaskController implements TaskControllerI<Request, Response> {
 
     if (!errors.isEmpty()) throw new MultipleValidationDataError(messageError)
 
-    const { id, message, time, target } = req.body
+    const { id, message, time, targetPhone, destinatary } = req.body
     const token = req.get("Authorization")
     if (!token)
       throw new UnathorizedError("Bearer token is not provided or is invalid")
@@ -69,14 +69,15 @@ export class TaskController implements TaskControllerI<Request, Response> {
       userId: id,
       action: message,
       taskType: "WriteMessage",
-      target,
+      targetPhone,
+      destinatary
     }
 
     return await this.writeMessageUseCase.invoke(task, token)
   }
 
   async editTask(req: Request, res: Response) {
-    const { executionTime, action, target, stopped } = req.body
+    const { executionTime, action, targetPhone, stopped, destinatary } = req.body
     const { id } = req.params
     const token = req.get("Authorization")
     if (!token)
@@ -84,7 +85,8 @@ export class TaskController implements TaskControllerI<Request, Response> {
     const task: DynamicTask = {
       executionTime,
       action,
-      target,
+      targetPhone,
+      destinatary,
       stopped,
     }
     return await this.editTaskUseCase.invoke(task, id, token)

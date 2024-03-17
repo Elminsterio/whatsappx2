@@ -10,8 +10,7 @@ export interface TasksI {
   getAllContactsTask(userBrowserConfPath: string): Promise<any>
   writeTask(
     userBrowserConfPath: string,
-    message: string,
-    contact: string,
+    sendObj: any,
     onErrorHandler: (error: any) => void,
     onSuccessHandler: (arg?: any) => void
   ): () => Promise<void>
@@ -90,8 +89,7 @@ export class Tasks implements TasksI {
 
   writeTask(
     userBrowserConfPath: string,
-    message: string,
-    contact: string,
+    sendObj: any,
     onErrorHandler: (error: unknown) => void,
     onSuccessHandler: (arg?: any) => void,
     args?: any[]
@@ -104,6 +102,7 @@ export class Tasks implements TasksI {
     if (!this.sesions[userBrowserConfPath]) {
       this.sesions[userBrowserConfPath] = whatsapp
     }
+    const {action, destinatary, targetPhone} = sendObj;
     //TODO: retocar el cliente de whatsapp para que envíe mensaje correctamente
     return async () => {
       try {
@@ -114,7 +113,7 @@ export class Tasks implements TasksI {
         } else {
           await whatsapp.awakeSession()
         }
-        await whatsapp.writeMsg(contact, message)
+        await whatsapp.writeMsg(targetPhone, destinatary, action)
         if (args) onSuccessHandler(...args)
         else onSuccessHandler()
       } catch (error: any) {

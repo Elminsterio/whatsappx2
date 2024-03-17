@@ -26,7 +26,6 @@ export class RefreshTokenUseCase implements RefreshTokenUseCaseI {
     const refreshTokenStored = await this.authRepository.getRefreshTokenByToken(
       refreshToken
     )
-    console.log(refreshTokenStored)
     if (
       refreshTokenStored ??
       this.authRepository.verifyRefreshToken(refreshToken)

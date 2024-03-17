@@ -33,7 +33,8 @@ export class StartTasksJob {
           taskType,
           userId,
           action,
-          target,
+          targetPhone,
+          destinatary,
           stopped,
           _id,
         } = allTasks[i]
@@ -78,8 +79,7 @@ export class StartTasksJob {
           case "WriteMessage":
             cb = this.WHscraper.writeTaskOnQueue(
               userPath,
-              action,
-              target,
+              {action, targetPhone,destinatary},
               onErrorHandler,
               onSuccessHandler
             )
@@ -87,14 +87,12 @@ export class StartTasksJob {
           default:
             cb = this.WHscraper.writeTaskOnQueue(
               userPath,
-              action,
-              target,
+              {action, targetPhone,destinatary},
               onErrorHandler,
               onSuccessHandler
             )
             break
         }
-
         const idString = _id.toString()
         this.scheduler.addScheduledJob(idString, executionTimeParsed, cb)
       }

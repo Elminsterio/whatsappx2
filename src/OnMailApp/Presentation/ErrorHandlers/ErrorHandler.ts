@@ -10,6 +10,9 @@ export class ErrorHandler {
     console.log(error)
     const msg = error.message
     switch (error.name) {
+      case "Not Authenticated":
+        res.status(401).json({ error: msg })
+        break
       case "ErrorPwdOrUserNotFound":
         res.status(error.status).json({ error: msg })
         break
